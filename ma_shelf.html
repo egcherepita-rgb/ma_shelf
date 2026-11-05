@@ -1,3 +1,4 @@
+<!-- UPDATE 2026-11-05b: загруженные в проект РЦ старше 05.11.2026 игнорируются при открытии проекта; действуют встроенные РЦ от 05.11. -->
 <!-- UPDATE 2026-11-05: All 113 catalog articles verified against worksheet РЦ 10_26 in the 05.11 XLSM; S24199541802 updated from 1040 to 1090 RUB for all shelf depths. -->
 <!-- UPDATE 2026-10-04: 111 catalog articles updated from RC new in PROMET price list effective 2026-10-05; S24499170000 and S24199541802 absent from source and unchanged. -->
 <!doctype html>
@@ -2014,6 +2015,7 @@ function normalizePlannerProjectState(value){
   const quoteSource=source.quote3dView&&typeof source.quote3dView==='object'?source.quote3dView:{},quote3dView={azimuth:Number.isFinite(Number(quoteSource.azimuth))?((Number(quoteSource.azimuth)+540)%360)-180:base.quote3dView.azimuth,elevation:Math.max(10,Math.min(70,Number(quoteSource.elevation)||base.quote3dView.elevation)),zoom:Math.max(.62,Math.min(2.45,Number(quoteSource.zoom)||base.quote3dView.zoom))};
   return{...base,...source,room:{...base.room,...roomSource,width:positive(roomSource.width,base.room.width),height:positive(roomSource.height,base.room.height),notchWidth:positive(roomSource.notchWidth,base.room.notchWidth),notchHeight:positive(roomSource.notchHeight,base.room.notchHeight),points:points.length>=3?points:base.room.points.map(point=>[...point])},objects,draftPoints,railAisleMm:Math.round(Math.max(750,Math.min(5000,positive(source.railAisleMm,base.railAisleMm)))),railAisleUserSet:source.railAisleUserSet===true,quote3dView,counter:Math.max(1,clampInt(source.counter||1))};
 }
+const BUILTIN_RC_DATE=Date.parse('2026-11-05T00:00:00+03:00');
 function defaultState(){return{version:11,currentStep:1,project:{requestNo:'',client:'',contact:'',phone:'',comment:'',counterRegistered:false},pricing:{logistics:0,discount:0,assemblyMarkup:0,assemblyEnabled:false},priceOverrides:{},priceImport:{fileName:'',importedAt:'',priceColumn:'',matched:0,total:0,unmatched:0},configs:[],directQty:{},manualDirectKeys:{},wheelQty:{},wheelMode:'auto',ui:{builderDepth:400,accessoryDepth:400,accessoryCategory:'all',accessorySearch:''},planner:plannerProjectDefaults()}}
 let preparePlannerProjectSave=()=>{},refreshPlannerAfterProjectLoad=()=>{};
 let state=defaultState();
@@ -2032,6 +2034,7 @@ function finalizeMigratedState(s,{source='storage',legacy=false}={}){
   s.priceOverrides=Object.fromEntries(Object.entries(s.priceOverrides||{}).map(([article,price])=>[normalizedArticle(article),Number(price)]).filter(([article,price])=>article&&Number.isFinite(price)&&price>=0));
   s.priceImport={...defaultState().priceImport,...(s.priceImport||{})};
   if(s.priceImport.priceColumn&&s.priceImport.priceColumn!=='rc'){s.priceOverrides={};s.priceImport=defaultState().priceImport}
+  if(Object.keys(s.priceOverrides).length){const importedAt=Date.parse(s.priceImport.importedAt||'');if(!Number.isFinite(importedAt)||importedAt<BUILTIN_RC_DATE){console.warn('Устаревшие загруженные РЦ из проекта сброшены, действуют встроенные РЦ от 05.11.2026');s.priceOverrides={};s.priceImport=defaultState().priceImport}}
   delete s.ui.priceSource;
   const migratedDirect=migrateDirectStateKeys(s.directQty,s.manualDirectKeys);
   s.directQty=migratedDirect.directQty;
