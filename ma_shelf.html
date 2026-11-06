@@ -1319,7 +1319,7 @@ body:not(.planner-focus) #plannerStep.planner-landing-only .planner-choice-card 
 </style>
 <style id="planner-3d-view-v18">
 .planner-toolbar .planner-3d-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px!important;padding:6px 11px!important;border:1px solid #89aaf0!important;border-radius:11px!important;background:linear-gradient(135deg,#edf4ff,#e5edff)!important;color:#1749b5!important;font-weight:900!important;white-space:nowrap;box-shadow:0 4px 11px rgba(36,85,214,.10)!important}
-.planner-toolbar .planner-3d-btn:hover:not(:disabled){transform:translateY(-1px)!important;border-color:#3f70d9!important;background:linear-gradient(135deg,#3478f3,#2455d6)!important;color:#fff!important;box-shadow:0 8px 18px rgba(36,85,214,.24)!important}
+.planner-toolbar .planner-3d-btn:hover:not(:disabled){transform:none!important;border-color:#3f70d9!important;background:linear-gradient(135deg,#3478f3,#2455d6)!important;color:#fff!important;box-shadow:0 8px 18px rgba(36,85,214,.24)!important}
 .planner-toolbar .planner-3d-btn:disabled{border-color:#dce3ed!important;background:#f4f6f9!important;color:#a1abba!important;box-shadow:none!important}
 .planner-3d-btn-icon{position:relative;width:19px;height:19px;display:grid;place-items:center;flex:0 0 19px;border-radius:6px;background:rgba(37,99,235,.12);font-size:10px;line-height:1;letter-spacing:-.06em}
 .planner-3d-btn:not(:disabled):hover .planner-3d-btn-icon{background:rgba(255,255,255,.18)}
@@ -1495,6 +1495,17 @@ body.planner-focus .planner-toolbar.planner-toolbar-narrow .planner-rail-aisle-c
 .plan-object.selected .door-leaf,.plan-object.selected .window-frame{stroke:#2455d6}
 .plan-object.invalid .door-leaf,.plan-object.invalid .window-frame{stroke:#c5363f}
 @media(max-width:820px){.planner-opening-props{grid-template-columns:1fr}}
+</style>
+<style id="ui-stability-v1">
+/* Buttons and cards keep their geometry on hover/press: feedback comes from colour, border and shadow only. */
+html body :is(.btn,.icon-btn,.export-btn,.planner-tool,.planner-catalog-card,.planner-catalog-add,.planner-direction-pad button,.planner-object-row,.planner-choice-card,.guide-card,.depth-option,.header-action,.builder .add-config-btn):is(:hover,:active,:focus-visible):not(.u1):not(.u2):not(.u3){transform:none!important}
+html body :is(.btn,.icon-btn,.export-btn,.planner-tool,.planner-catalog-card,.planner-catalog-add,.planner-direction-pad button,.planner-object-row,.planner-choice-card,.header-action,.depth-option):not(.u1):not(.u2){transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease,color .15s ease!important}
+html body .planner-toolbar .btn{white-space:nowrap}
+html body .planner-panel .btn:active:not(:disabled),html body .planner-tool:active:not(:disabled),html body .planner-catalog-add:active:not(:disabled){box-shadow:inset 0 2px 5px rgba(30,52,90,.16)!important}
+/* The status line keeps one row: chips scroll instead of wrapping and pushing the canvas around. */
+html body .planner-status{flex-wrap:nowrap!important;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;min-height:44px;align-items:center}
+html body .planner-status::-webkit-scrollbar{display:none}
+html body .planner-status>span{flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -2935,7 +2946,7 @@ function renderCatalog(){
     const focused=document.body.classList.contains('planner-focus');
     if(!focused){toolbar.classList.remove('planner-toolbar-compact','planner-toolbar-narrow');toolbar.dataset.density='normal';return}
     const width=Math.round(toolbar.getBoundingClientRect().width||toolbar.clientWidth||0);if(width<120)return;
-    const compact=width<1400,narrow=width<660;
+    const wasCompact=toolbar.classList.contains('planner-toolbar-compact'),wasNarrow=toolbar.classList.contains('planner-toolbar-narrow'),compact=wasCompact?width<1460:width<1400,narrow=wasNarrow?width<700:width<660;
     toolbar.classList.toggle('planner-toolbar-compact',compact||narrow);toolbar.classList.toggle('planner-toolbar-narrow',narrow);toolbar.dataset.density=narrow?'narrow':compact?'compact':'normal'
   }
   function applyPlannerCadScreenScale(){
@@ -3594,7 +3605,7 @@ function renderCatalog(){
   document.addEventListener('dragstart',e=>{const card=e.target.closest('[data-library-kind]');if(!card)return;const item=descriptorFromLibraryCard(card);if(!item)return;libraryDrag={card,item};card.classList.add('dragging');e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/plain','planner-library-item');});
   document.addEventListener('dragend',()=>{if(libraryDrag?.card)libraryDrag.card.classList.remove('dragging');libraryDrag=null;clearDropPreview();});
   const plannerStage=$('.planner-stage-card'),plannerCanvas=$('.planner-canvas-wrap');
-  let plannerResizeFrame=0;const syncPlannerViewport=()=>{cancelAnimationFrame(plannerResizeFrame);plannerResizeFrame=requestAnimationFrame(()=>{syncPlannerToolbarDensity();if(state.currentStep===1&&pstate().focus)renderPlanner()})};if(typeof ResizeObserver!=='undefined'){const plannerObserver=new ResizeObserver(syncPlannerViewport);plannerObserver.observe(plannerCanvas);plannerObserver.observe(plannerStage)}else window.addEventListener('resize',syncPlannerViewport);window.addEventListener('resize',syncPlannerToolbarDensity);
+  let plannerResizeFrame=0,plannerLastSize={w:0,h:0};const syncPlannerViewport=()=>{cancelAnimationFrame(plannerResizeFrame);plannerResizeFrame=requestAnimationFrame(()=>{syncPlannerToolbarDensity();const rect=plannerCanvas.getBoundingClientRect(),w=Math.round(rect.width),h=Math.round(rect.height);if(Math.abs(w-plannerLastSize.w)<2&&Math.abs(h-plannerLastSize.h)<2)return;plannerLastSize={w:w,h:h};if(state.currentStep===1&&pstate().focus)renderPlanner()})};if(typeof ResizeObserver!=='undefined'){const plannerObserver=new ResizeObserver(syncPlannerViewport);plannerObserver.observe(plannerCanvas);plannerObserver.observe(plannerStage)}else window.addEventListener('resize',syncPlannerViewport);window.addEventListener('resize',syncPlannerToolbarDensity);
   plannerCanvas.addEventListener('dragenter',e=>{if(!libraryDrag)return;e.preventDefault();plannerStage.classList.add('drag-target');$('#plannerDropHint').classList.remove('hidden');});
   plannerCanvas.addEventListener('dragover',e=>{if(!libraryDrag)return;e.preventDefault();e.dataTransfer.dropEffect='copy';plannerStage.classList.add('drag-target');$('#plannerDropHint').classList.remove('hidden');showDropPreview(libraryDrag.item,svgPoint(e));});
   plannerCanvas.addEventListener('dragleave',e=>{if(!plannerCanvas.contains(e.relatedTarget))clearDropPreview();});
