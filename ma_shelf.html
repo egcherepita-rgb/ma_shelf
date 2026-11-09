@@ -769,10 +769,11 @@ body.planner-landing-active .step-link.active{
 .planner-svg .dim-ext{stroke:#df7780;stroke-width:1.3;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}
 .planner-svg .dim-text{fill:#bd2732;font-size:105px;font-weight:900;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:20;stroke-linejoin:round}
 
+.rack-sheet-fold{fill:none;stroke:#a4a9ac;stroke-width:.65;vector-effect:non-scaling-stroke;pointer-events:none}.rack-wheel-grip{fill:#343a40;stroke:#111820;stroke-width:.7;vector-effect:non-scaling-stroke;pointer-events:none}
 /* Технический вид сверху по образцу: секции читаются без декоративных подписей. */
 .planner-svg .rack-footprint{fill:transparent;stroke:transparent;filter:none}
 .planner-svg .rack-section-shell{fill:#f2f2f2;stroke:#172033;stroke-width:2.2;vector-effect:non-scaling-stroke;pointer-events:none}
-.planner-svg .rack-section-shell.main-rack-section{fill:#aeb1b5}
+.planner-svg .rack-section-shell.main-rack-section{fill:#f2f2f2}
 .planner-svg .rack-center-divider{stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
 .planner-svg .rack-front-panel-tech{fill:#9ca1a7;stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
 .planner-svg .rack-rear-panel-tech{fill:#d8dadd;stroke:#172033;stroke-width:1.8;vector-effect:non-scaling-stroke;pointer-events:none}
@@ -1917,7 +1918,7 @@ html body .planner-issue{font-size:11.5px}
     <div class="planner-3d-stage">
       <canvas class="planner-3d-canvas" id="planner3dCanvas" aria-label="Реалистичная трёхмерная визуализация помещения и расставленных стеллажей"></canvas>
       <svg class="planner-3d-svg" id="planner3dSvg" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Трёхмерный вид помещения и расставленных стеллажей"></svg>
-      <div class="planner-3d-helper"><b>Потяните мышью</b><span>— угол · колесо — масштаб · затем сохраните ракурс для КП</span></div>
+      <div class="planner-3d-helper"><b>ЛКМ — вращение · ПКМ — перемещение</b><span>· колесо — масштаб · двойной щелчок — сброс</span></div>
       <div class="planner-3d-status" id="planner3dStatus"></div>
     </div>
   </div>
@@ -2046,7 +2047,7 @@ function migrateDirectStateKeys(directQtyValue,manualKeysValue){
   return{directQty,manualDirectKeys};
 }
 
-function plannerProjectDefaults(){return{version:12,room:{created:false,mode:'rect',width:6000,height:5000,notchWidth:1200,notchHeight:1200,points:[[0,0],[6000,0],[6000,5000],[0,5000]]},objects:[],selectedId:null,drawing:false,draftPoints:[],zoom:1,panX:0,panY:0,snap:true,magnet:true,grid:100,showDimensions:true,showClearances:false,showRackDimensions:false,railAisleMm:1000,railAisleUserSet:false,showCrownFolders3d:false,quote3dView:{azimuth:-138,elevation:29,zoom:1},focus:false,studioStage:'room',ortho:true,counter:1}}
+function plannerProjectDefaults(){return{version:12,room:{created:false,mode:'rect',width:6000,height:5000,notchWidth:1200,notchHeight:1200,points:[[0,0],[6000,0],[6000,5000],[0,5000]]},objects:[],selectedId:null,drawing:false,draftPoints:[],zoom:1,panX:0,panY:0,snap:true,magnet:true,grid:100,showDimensions:true,showClearances:false,showRackDimensions:false,railAisleMm:1000,railAisleUserSet:false,showCrownFolders3d:false,quote3dView:{azimuth:-138,elevation:29,zoom:1,panX:0,panY:0},focus:false,studioStage:'room',ortho:true,counter:1}}
 function normalizePlannerProjectState(value){
   const base=plannerProjectDefaults(),source=value&&typeof value==='object'&&!Array.isArray(value)?value:{},roomSource=source.room&&typeof source.room==='object'&&!Array.isArray(source.room)?source.room:{};
   const positive=(candidate,fallback)=>Number.isFinite(Number(candidate))&&Number(candidate)>0?Number(candidate):fallback;
@@ -2459,7 +2460,7 @@ init();
   const asideActions=document.querySelector('.aside-actions');if(asideActions&&!$('#asidePlannerBtn'))asideActions.insertAdjacentHTML('beforeend','<button class="btn" id="asidePlannerBtn" type="button">Печать плана помещения</button>');
 
   let drag=null,roomMode='rect',libraryDrag=null,drawHover=null,librarySignature='',magnetGuide=null,editingExistingRoom=false,planner3dDrag=null;
-  const normalizePlanner3dView=value=>{const source=value&&typeof value==='object'?value:{};return{azimuth:Number.isFinite(Number(source.azimuth))?((Number(source.azimuth)+540)%360)-180:-138,elevation:Math.max(10,Math.min(70,Number(source.elevation)||29)),zoom:Math.max(.62,Math.min(2.45,Number(source.zoom)||1))}};
+  const normalizePlanner3dView=value=>{const source=value&&typeof value==='object'?value:{};return{azimuth:Number.isFinite(Number(source.azimuth))?((Number(source.azimuth)+540)%360)-180:-138,elevation:Math.max(10,Math.min(70,Number(source.elevation)||29)),zoom:Math.max(.62,Math.min(2.45,Number(source.zoom)||1)),panX:Number.isFinite(Number(source.panX))?Math.max(-6,Math.min(6,Number(source.panX))):0,panY:Number.isFinite(Number(source.panY))?Math.max(-6,Math.min(6,Number(source.panY))):0}};
   const planner3dView=normalizePlanner3dView(state.planner?.quote3dView);
   const catalogState={type:'mobile',depth:300,sectionWidths:[1000],height:1996,shelfCount:6,wheelId:'d80'};
   const pstate=()=>state.planner;
@@ -2865,12 +2866,7 @@ function renderCatalog(){
       return `<g class="${cls} wall-opening window-opening" data-planner-object="${o.id}" transform="translate(${cx} ${cy}) rotate(${rot})"><title>${esc(title)} · подоконник ${Math.round(Number(o.sillMm)||0)} мм</title><rect class="wall-opening-hit" x="${-w/2}" y="${-hitDepth/2}" width="${w}" height="${hitDepth}"/><line class="wall-opening-gap" x1="${-w/2}" y1="0" x2="${w/2}" y2="0"/><rect class="window-frame" x="${-w/2}" y="${-d/2}" width="${w}" height="${d}"/><line class="window-glass" x1="${-w/2+22}" y1="${-d*.18}" x2="${w/2-22}" y2="${-d*.18}"/><line class="window-glass" x1="${-w/2+22}" y1="${d*.18}" x2="${w/2-22}" y2="${d*.18}"/><line class="window-glass" x1="0" y1="${-d/2}" x2="0" y2="${d/2}"/><text class="object-label opening-label" x="0" y="${-d/2-78}">${esc(o.label)}</text>${sel?`<circle class="planner-handle" cx="${w/2}" cy="0" r="38"/>`:''}</g>`;
     }
     if(o.kind==='group'){bodyClass='group-body';const rowDepth=Number(o.rowDepth)||600,rows=(Number(o.mobileRows)||0)+(Number(o.stationaryRows)||0);for(let i=1;i<rows;i++){const yy=-objectDepth/2+i*rowDepth;details+=`<line class="object-detail aisle-detail" x1="${-objectWidth/2}" y1="${yy}" x2="${objectWidth/2}" y2="${yy}"/>`}if(Number(o.aisle)>0){const ay=objectDepth/2-Number(o.aisle);details+=`<rect class="aisle-body" x="${-objectWidth/2}" y="${ay}" width="${objectWidth}" height="${o.aisle}"/><text class="object-label object-sub" x="0" y="${ay+o.aisle/2}">проход ${o.aisle}</text>`}}
-    else if(isRack){bodyClass='rack-footprint';const parts=rackWidthAllowances(o.rackType),sectionWidths=sectionSource,sections=sectionWidths.length,shelfSpan=sectionWidths.reduce((s,x)=>s+x,0),firstX=-objectWidth/2+parts.left,shelfEnd=firstX+shelfSpan,frontPanelX=firstX-parts.frontPanel;labelX=firstX+shelfSpan/2;
-      let sectionX=firstX;for(let i=0;i<sections;i++){const x=sectionX,w=sectionWidths[i];sectionX+=w;if(w<=0)continue;details+=`<rect class="rack-section-shell ${i===0?'main-rack-section':''}" x="${x}" y="${-objectDepth/2}" width="${w}" height="${objectDepth}"/>`}
-      if(o.rackType!=='stationary_single')details+=`<line class="rack-center-divider" x1="${firstX}" y1="0" x2="${shelfEnd}" y2="0"/>`;
-      if(parts.frontPanel){details+=`<rect class="rack-front-panel-tech" x="${frontPanelX}" y="${-objectDepth/2}" width="${parts.frontPanel}" height="${objectDepth}"/><path class="rack-front-bracket" d="M ${firstX+32} ${-objectDepth/2-16} H ${frontPanelX+8} L ${frontPanelX-9} ${-objectDepth/2+8} V ${objectDepth/2-8} L ${frontPanelX+8} ${objectDepth/2+16} H ${firstX+32}"/>`}
-      if(parts.rear)details+=`<rect class="rack-rear-panel-tech" x="${shelfEnd}" y="${-objectDepth/2}" width="${parts.rear}" height="${objectDepth}"/>`;
-      if(o.rackType==='mobile'){const leftEdge=-objectWidth/2,wx=leftEdge+parts.wheel*.68,stemStart=leftEdge+8,stemEnd=frontPanelX+parts.frontPanel*.2,ry=Math.min(118,Math.max(72,objectDepth*.25)),rx=Math.min(34,Math.max(22,objectDepth*.055)),couplingW=Math.max(24,parts.frontPanel*.22);details+=`<line class="rack-handwheel-stem" x1="${stemStart}" y1="0" x2="${stemEnd}" y2="0"/><line class="rack-handwheel-stem-highlight" x1="${stemStart+3}" y1="-2" x2="${stemEnd}" y2="-2"/><rect class="rack-handwheel-coupling" x="${frontPanelX-couplingW*.15}" y="${-ry*.2}" width="${couplingW}" height="${ry*.4}"/><ellipse class="rack-handwheel-tech" cx="${wx}" cy="0" rx="${rx}" ry="${ry}"/><ellipse class="rack-handwheel-highlight" cx="${wx-rx*.16}" cy="-2" rx="${rx*.62}" ry="${ry*.86}"/>`}
+    else if(isRack){bodyClass='rack-footprint';details=archiveTopMarkup(o);
     }else if(o.kind==='column')bodyClass='column-body';else if(o.kind==='zone')bodyClass='zone-body';else if(o.kind==='aisle')bodyClass='aisle-body';
     const composition=isRack?sectionSource.map(x=>Math.round(x)).join('+'):'',sub=isRack?`${sectionSource.length} сек. · ${composition} мм · ${o.shelfCount||6} полок`:(o.kind==='group'?`${Math.round(objectWidth)} × ${Math.round(objectDepth)} мм`:'');
     return `<g class="${cls}" data-planner-object="${o.id}" transform="translate(${cx} ${cy}) rotate(${rot})"><title>${esc(o.label)} · габарит ${Math.round(objectWidth)} × ${Math.round(objectDepth)} мм</title><rect class="object-body ${bodyClass}" x="${-objectWidth/2}" y="${-objectDepth/2}" width="${objectWidth}" height="${objectDepth}" rx="${isRack?0:Math.min(35,objectDepth/8)}"/>${details}${!isRack?`<text class="object-label" x="${labelX}" y="${sub?5:0}">${esc(o.label)}</text>${sub?`<text class="object-label object-sub rack-sub" x="${labelX}" y="${Math.min(objectDepth/2-42,105)}">${sub}</text>`:''}`:''}${sel?`<circle class="planner-handle" cx="${objectWidth/2}" cy="${objectDepth/2}" r="38"/>`:''}</g>`;
@@ -2996,8 +2992,8 @@ function renderCatalog(){
     .planner3d-rail-bed{fill:none;stroke:#253349;stroke-width:6;stroke-linecap:round;opacity:.72;filter:url(#planner3dRailShadow)}.planner3d-rail-line{fill:none;stroke:url(#planner3dRailGradient);stroke-width:2;stroke-linecap:round;opacity:1}
     .planner3d-rack-section-top{fill:url(#planner3dRackTop);stroke:#35455c;stroke-width:1.05}.planner3d-rack-section-top.is-main{fill:url(#planner3dRackMainTop)}
     .planner3d-shelf-top{fill:url(#planner3dShelfTop);stroke:#2b3a50;stroke-width:.72}.planner3d-shelf-edge{fill:url(#planner3dShelfEdge);stroke:#2b3a50;stroke-width:.8}
-    .planner3d-rack-divider{fill:url(#planner3dDivider);stroke:#2d3d53;stroke-width:.88;opacity:.99}.planner3d-rack-back{fill:url(#planner3dBackPanel);stroke:#4b5d75;stroke-width:.7;opacity:.75}.planner3d-rack-back.center{fill:url(#planner3dCenterBack);opacity:.88}
-    .planner3d-rack-end{fill:url(#planner3dRackSide);stroke:#1f3048;stroke-width:1.15;filter:url(#planner3dPanelShadow)}.planner3d-rack-end.front-panel,.planner3d-front-panel-side{fill:url(#planner3dDrivePanel);stroke:#16263b;stroke-width:1.35}.planner3d-panel-bevel{stroke:#26364a;stroke-width:.72}.planner3d-panel-bevel.top,.planner3d-panel-bevel.near{fill:#dfe5ea}.planner3d-panel-bevel.bottom,.planner3d-panel-bevel.far{fill:#74818d}.planner3d-rack-end.invalid,.planner3d-front-panel-side.invalid,.planner3d-panel-bevel.invalid,.planner3d-rack-section-top.invalid,.planner3d-shelf-top.invalid{stroke:#c6333e;stroke-width:2}
+    .planner3d-rack-divider{fill:#c4c7ca;stroke:#2d3d53;stroke-width:.88;opacity:.99}.planner3d-rack-back{fill:url(#planner3dBackPanel);stroke:#4b5d75;stroke-width:.7;opacity:.75}.planner3d-rack-back.center{fill:url(#planner3dCenterBack);opacity:.88}
+    .planner3d-rack-end{fill:#d9dcde;stroke:#1f3048;stroke-width:1.15;filter:url(#planner3dPanelShadow)}.planner3d-rack-end.front-panel,.planner3d-front-panel-side{fill:url(#planner3dDrivePanel);stroke:#16263b;stroke-width:1.35}.planner3d-panel-bevel{stroke:#26364a;stroke-width:.72}.planner3d-panel-bevel.top,.planner3d-panel-bevel.near{fill:#dfe5ea}.planner3d-panel-bevel.bottom,.planner3d-panel-bevel.far{fill:#74818d}.planner3d-rack-end.invalid,.planner3d-front-panel-side.invalid,.planner3d-panel-bevel.invalid,.planner3d-rack-section-top.invalid,.planner3d-shelf-top.invalid{stroke:#c6333e;stroke-width:2}
     .planner3d-post{fill:none;stroke:#1e2f46;stroke-width:2.45;stroke-linecap:round}.planner3d-post-hole{fill:#718199;stroke:#f4f7fa;stroke-width:.45;opacity:.9}.planner3d-shelf-line{fill:none;stroke:#1f3046;stroke-width:1.2}
     .planner3d-base-face{fill:url(#planner3dBaseFace);stroke:#17283e;stroke-width:1}.planner3d-base-top{fill:url(#planner3dBaseTop);stroke:#26374d;stroke-width:.75}.planner3d-base-line{fill:none;stroke:#17283e;stroke-width:3.2;stroke-linecap:round}.planner3d-panel-highlight{fill:none;stroke:rgba(255,255,255,.68);stroke-width:1.05}
     .planner3d-wheel-rim{fill:rgba(235,241,248,.55);stroke:#122e52;stroke-width:3.5;filter:url(#planner3dWheelShadow)}.planner3d-wheel-spoke{stroke:#17375f;stroke-width:2.35;stroke-linecap:round}.planner3d-wheel-hub{fill:url(#planner3dWheelHub);stroke:#102a4b;stroke-width:2.2}.planner3d-wheel-handle{fill:#19385f;stroke:#f4f7fb;stroke-width:1.25;filter:url(#planner3dWheelShadow)}
@@ -3021,18 +3017,18 @@ function renderCatalog(){
   function planner3dCamera(worldPoints,center){
     const a=planner3dView.azimuth*Math.PI/180,e=planner3dView.elevation*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a),ce=Math.cos(e),se=Math.sin(e),raw=p=>{const dx=Number(p[0])-center[0],dy=Number(p[1])-center[1],z=Number(p[2])||0,forward=dx*sa+dy*ca;return{x:dx*ca-dy*sa,y:forward*se-z*ce,depth:forward*ce+z*se}};
     const projected=worldPoints.map(raw),minX=Math.min(...projected.map(p=>p.x)),maxX=Math.max(...projected.map(p=>p.x)),minY=Math.min(...projected.map(p=>p.y)),maxY=Math.max(...projected.map(p=>p.y)),rangeX=Math.max(1,maxX-minX),rangeY=Math.max(1,maxY-minY),scale=Math.min(1060/rangeX,650/rangeY)*planner3dView.zoom,midX=(minX+maxX)/2,midY=(minY+maxY)/2;
-    return{raw,scale,project:p=>{const q=raw(p);return{x:600+(q.x-midX)*scale,y:373+(q.y-midY)*scale,depth:q.depth}},screenPoints:pts=>pts.map(p=>{const q=raw(p);return`${(600+(q.x-midX)*scale).toFixed(2)},${(373+(q.y-midY)*scale).toFixed(2)}`}).join(' ')}
+    return{raw,scale,project:p=>{const q=raw(p);return{x:600+(q.x-midX)*scale+planner3dView.panX*760,y:373+(q.y-midY)*scale+planner3dView.panY*760,depth:q.depth}},screenPoints:pts=>pts.map(p=>{const q=raw(p);return`${(600+(q.x-midX)*scale+planner3dView.panX*760).toFixed(2)},${(373+(q.y-midY)*scale+planner3dView.panY*760).toFixed(2)}`}).join(' ')}
   }
   function planner3dLine(camera,a,b,className,attrs=''){const p=camera.project(a),q=camera.project(b);return`<line class="${className}" x1="${p.x.toFixed(2)}" y1="${p.y.toFixed(2)}" x2="${q.x.toFixed(2)}" y2="${q.y.toFixed(2)}" ${attrs}/>`}
   function planner3dSurface(camera,points,className,attrs=''){return{depth:points.reduce((sum,p)=>sum+camera.raw(p).depth,0)/points.length,markup:`<polygon class="${className}" points="${camera.screenPoints(points)}" ${attrs}/>`}}
   function planner3dCoronaFolders(o,camera,local,widths,shelfStart,shelves,height,nearSpan,nearY,selectedDepth){
     if(!pstate().showCrownFolders3d)return{faces:[],labels:[]};
-    const faces=[],labels=[],shelfGap=(height-190)/Math.max(1,shelves-1),folderHeight=Math.max(125,Math.min(320,shelfGap-42)),inward=nearY<0?1:-1,spineY=(nearY<0?nearSpan.from:nearSpan.to)+inward*Math.min(24,selectedDepth*.08),folderDepth=Math.max(60,Math.min(145,selectedDepth*.36)),backY=spineY+inward*folderDepth,labelY=spineY-inward*1.6;
+    const faces=[],labels=[],shelfGap=(height-94)/Math.max(1,shelves-1),folderHeight=Math.max(125,Math.min(320,shelfGap-42)),inward=nearY<0?1:-1,spineY=(nearY<0?nearSpan.from:nearSpan.to)+inward*Math.min(24,selectedDepth*.08),folderDepth=Math.max(60,Math.min(145,selectedDepth*.36)),backY=spineY+inward*folderDepth,labelY=spineY-inward*1.6;
     let cursor=shelfStart;
     widths.forEach((rawWidth,sectionIndex)=>{
       const sectionWidth=Math.max(100,Number(rawWidth)||1000),inset=Math.max(24,Math.min(40,sectionWidth*.045)),usable=Math.max(120,sectionWidth-inset*2),count=Math.max(4,Math.min(10,Math.floor(usable/86))),gap=Math.max(3,Math.min(7,usable/count*.075)),folderWidth=(usable-gap*(count-1))/count;
       for(let shelf=0;shelf<shelves-1;shelf++){
-        const shelfZ=82+(height-190)*(shelves===1?0:shelf/(shelves-1)),z0=shelfZ+9,z1=z0+folderHeight;
+        const shelfZ=82+(height-94)*shelf/(shelves-1),z0=shelfZ+9,z1=z0+folderHeight;
         for(let folder=0;folder<count;folder++){
           const x0=cursor+inset+folder*(folderWidth+gap),x1=x0+folderWidth,tone=(sectionIndex*3+shelf+folder)%6,attrs=`data-corona-folder="${sectionIndex}-${shelf}-${folder}" data-folder-name="Корона"`;
           faces.push(planner3dSurface(camera,[local(x0,spineY,z0),local(x1,spineY,z0),local(x1,spineY,z1),local(x0,spineY,z1)],`planner3d-corona-spine tone-${tone}`,attrs));
@@ -3051,53 +3047,84 @@ function renderCatalog(){
     });
     return{faces,labels}
   }
-  function planner3dRackMarkup(o,camera,invalid){
-    const widths=rackSectionWidths(o),type=o.rackType||'mobile',selectedDepth=Math.max(1,Number(o.depthMm)||300),width=actualRackWidth(widths,type),depth=actualDepth(selectedDepth,type),height=Math.max(700,Number(o.heightMm)||1996),shelves=Math.max(2,Math.min(12,clampInt(o.shelfCount||6))),parts=rackWidthAllowances(type),shelfStart=-width/2+parts.left,y0=-depth/2+Math.min(22,depth*.04),y1=depth/2-Math.min(22,depth*.04),isDouble=type!=='stationary_single',centerGap=isDouble?Math.max(0,depth-selectedDepth*2):0,shelfSpans=isDouble?[{side:'front',from:-depth/2,to:-centerGap/2},{side:'rear',from:centerGap/2,to:depth/2}]:[{side:'full',from:y0,to:y1}],faces=[],lines=[],details=[],isInvalid=invalid.has(o._sourceId||o.id),invalidClass=isInvalid?' invalid':'';
-    const local=(x,y,z)=>planner3dLocalPoint(o,x,y,z),add=(pts,cls,attrs='')=>faces.push(planner3dSurface(camera,pts,cls+invalidClass,attrs));
-    const nearY=camera.raw(local(0,-depth/2,height*.45)).depth>=camera.raw(local(0,depth/2,height*.45)).depth?-depth/2:depth/2,nearSpan=nearY<0?shelfSpans[0]:shelfSpans[shelfSpans.length-1],edgeInner=nearY<0?nearSpan.from:nearSpan.to,edgeOuter=edgeInner+(nearY<0?-4:4),frameY0=isDouble?-depth/2:y0,frameY1=isDouble?depth/2:y1;
-    let cursor=shelfStart;
-    widths.forEach((sectionWidth,index)=>{
-      const x0=cursor,x1=cursor+Number(sectionWidth),inset=Math.min(16,Number(sectionWidth)*.025);
-      shelfSpans.forEach(span=>add([local(x0,span.from,height),local(x1,span.from,height),local(x1,span.to,height),local(x0,span.to,height)],`planner3d-rack-section-top${index===0?' is-main':''}`,`data-section="${index}" data-top-side="${span.side}" data-depth-mm="${Math.round(selectedDepth)}"`));
-      for(let shelf=0;shelf<shelves;shelf++){
-        const z=82+(height-190)*(shelves===1?0:shelf/(shelves-1));
-        shelfSpans.forEach(span=>add([local(x0+inset,span.from,z),local(x1-inset,span.from,z),local(x1-inset,span.to,z),local(x0+inset,span.to,z)],'planner3d-shelf-top',`data-shelf="${shelf}" data-section="${index}" data-shelf-side="${span.side}" data-depth-mm="${Math.round(selectedDepth)}"`));
-        add([local(x0+inset,edgeOuter,z-24),local(x1-inset,edgeOuter,z-24),local(x1-inset,edgeInner,z),local(x0+inset,edgeInner,z)],'planner3d-shelf-edge',`data-shelf-edge="${shelf}"`);
-        lines.push(planner3dLine(camera,local(x0+inset,edgeOuter,z),local(x1-inset,edgeOuter,z),'planner3d-shelf-line',`data-shelf-line="${shelf}"`))
-      }
-      cursor=x1;
+  // Parametric web geometry redrawn from the six supplied SketchUp previews.
+  // Keep commercial dimensions/allowances separate: this only describes visible parts (mm).
+  function archiveVisualModel(o){
+    const widths=rackSectionWidths(o),type=o.rackType||'mobile',parts=rackWidthAllowances(type),width=actualRackWidth(widths,type),selectedDepth=Math.max(1,Number(o.depthMm)||300),depth=actualDepth(selectedDepth,type),height=Math.max(700,Number(o.heightMm)||1996),shelves=Math.max(2,Math.min(12,clampInt(o.shelfCount||6))),start=-width/2+parts.left,end=start+widths.reduce((sum,w)=>sum+w,0),double=type!=='stationary_single',gap=double?depth-2*selectedDepth:0,spans=double?[[-depth/2,-gap/2],[gap/2,depth/2]]:[[-depth/2,depth/2]],levels=Array.from({length:shelves},(_,i)=>82+(height-94)*i/(shelves-1)),boxes=[];
+    const box=(kind,x,y,z,sx,sy,sz,material='metalLight',section=-1)=>boxes.push({kind,x,y,z,sx,sy,sz,material,section});
+    let cursor=start;const boundaries=[start];
+    widths.forEach((w,section)=>{
+      spans.forEach(([a,b])=>{
+        const cy=(a+b)/2,d=b-a;
+        levels.forEach(z=>{
+          // Thin folded sheet, with downward returns rather than a solid slab.
+          box('shelf',cursor+w/2,cy,z,w-28,d-6,1.5,'metalLight',section);
+          for(const y of [a+3,b-3])box('shelf-return',cursor+w/2,y,z-13,w-28,2,26,'metal',section);
+          for(const x of [cursor+15,cursor+w-15])box('shelf-return',x,cy,z-13,2,d-6,26,'metal',section);
+        });
+      });
+      cursor+=w;boundaries.push(cursor);
     });
-    const boundaries=[shelfStart,...widths.reduce((arr,w)=>{arr.push(arr[arr.length-1]+Number(w));return arr},[shelfStart]).slice(1)];
+    // Shared sheet-metal end frames: an additional bay adds only one frame.
     boundaries.forEach((x,index)=>{
-      add([local(x-8,frameY0,55),local(x+8,frameY0,55),local(x+8,frameY1,height),local(x-8,frameY1,height)],'planner3d-rack-divider',`data-divider="${index}"`);
-      lines.push(planner3dLine(camera,local(x,edgeOuter,55),local(x,edgeOuter,height),'planner3d-post'));
-      const holeStep=Math.max(145,Math.min(225,(height-150)/9));
-      for(let z=145;z<height-105;z+=holeStep){const point=camera.project(local(x,edgeOuter+(nearY<0?-2:2),z));details.push(`<ellipse class="planner3d-post-hole" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" rx="1.15" ry=".72"/>`)}
+      const frameX=index===widths.length?x+14:x;
+      spans.forEach(([a,b])=>{
+        box('end-frame',frameX,(a+b)/2,(height+55)/2,1.5,b-a-10,height-55,'metal',index);
+        for(const y of [a+13,b-13]){
+          box('post',frameX,y,(height+55)/2,28,2,height-55,'metalLight',index);
+          for(let z=155;z<height-70;z+=50)box('post-hole',frameX,y+(y<0?-1.5:1.5),z,7,1,13,'hole',index);
+        }
+      });
+      if(type!=='mobile')for(const y of [-depth/2+28,depth/2-28])box('foot',Math.min(frameX,end+9),y,24,42,44,12,'base',index);
     });
-    if(isDouble){
-      add([local(shelfStart,-centerGap/2,55),local(cursor,-centerGap/2,55),local(cursor,-centerGap/2,height-20),local(shelfStart,-centerGap/2,height-20)],'planner3d-rack-back center','data-center-face="front"');
-      add([local(shelfStart,centerGap/2,55),local(cursor,centerGap/2,55),local(cursor,centerGap/2,height-20),local(shelfStart,centerGap/2,height-20)],'planner3d-rack-back center','data-center-face="rear"')
-    }else add([local(shelfStart,y0,55),local(cursor,y0,55),local(cursor,y0,height-20),local(shelfStart,y0,height-20)],'planner3d-rack-back');
-    const frontPanelX=shelfStart-Math.max(0,Number(parts.frontPanel)||0),panelY0=-depth/2,panelY1=depth/2,panelZ0=25,panelZ1=height,panelBevelY=Math.max(18,Math.min(48,depth*.09)),panelBevelZ=Math.max(20,Math.min(46,height*.024)),panelInnerY0=panelY0+panelBevelY,panelInnerY1=panelY1-panelBevelY,panelInnerZ0=panelZ0+panelBevelZ,panelInnerZ1=panelZ1-panelBevelZ,panelBevelX=frontPanelX+Math.max(8,Math.min(18,Number(parts.frontPanel)*.16));
-    add([local(frontPanelX,panelInnerY0,panelInnerZ0),local(frontPanelX,panelInnerY1,panelInnerZ0),local(frontPanelX,panelInnerY1,panelInnerZ1),local(frontPanelX,panelInnerY0,panelInnerZ1)],'planner3d-rack-end front-panel');
-    add([local(panelBevelX,panelY0,panelZ0),local(panelBevelX,panelY1,panelZ0),local(frontPanelX,panelInnerY1,panelInnerZ0),local(frontPanelX,panelInnerY0,panelInnerZ0)],'planner3d-panel-bevel bottom');
-    add([local(frontPanelX,panelInnerY0,panelInnerZ1),local(frontPanelX,panelInnerY1,panelInnerZ1),local(panelBevelX,panelY1,panelZ1),local(panelBevelX,panelY0,panelZ1)],'planner3d-panel-bevel top');
-    add([local(panelBevelX,panelY0,panelZ0),local(frontPanelX,panelInnerY0,panelInnerZ0),local(frontPanelX,panelInnerY0,panelInnerZ1),local(panelBevelX,panelY0,panelZ1)],'planner3d-panel-bevel near');
-    add([local(frontPanelX,panelInnerY1,panelInnerZ0),local(panelBevelX,panelY1,panelZ0),local(panelBevelX,panelY1,panelZ1),local(frontPanelX,panelInnerY1,panelInnerZ1)],'planner3d-panel-bevel far');
-    add([local(width/2,-depth/2,25),local(width/2,depth/2,25),local(width/2,depth/2,height),local(width/2,-depth/2,height)],'planner3d-rack-end');
-    if(shelfStart>-width/2+2){
-      add([local(frontPanelX,-depth/2,height),local(shelfStart,-depth/2,height),local(shelfStart,depth/2,height),local(frontPanelX,depth/2,height)],'planner3d-rack-section-top is-main');
-      add([local(frontPanelX,-depth/2,25),local(shelfStart,-depth/2,25),local(shelfStart,-depth/2,height),local(frontPanelX,-depth/2,height)],'planner3d-front-panel-side','data-front-panel-side="front"');
-      add([local(frontPanelX,depth/2,25),local(shelfStart,depth/2,25),local(shelfStart,depth/2,height),local(frontPanelX,depth/2,height)],'planner3d-front-panel-side','data-front-panel-side="rear"');
-      const highlightX=frontPanelX+Math.max(18,parts.frontPanel*.18);
-      lines.push(planner3dLine(camera,local(highlightX,nearY,70),local(highlightX,nearY,height-65),'planner3d-panel-highlight'))
+    // Hollow folded front cover. Its allowance includes the returns and drive.
+    const front=start-parts.frontPanel;
+    box('front-panel',front+1,0,(height+25)/2,2,depth-4,height-25,'metalLight');
+    for(const y of [-depth/2+2,depth/2-2])box('front-return',front+parts.frontPanel/2,y,(height+25)/2,parts.frontPanel,2,height-25,'metal');
+    for(const z of [38,height-2])box('front-return',front+parts.frontPanel/2,0,z,parts.frontPanel,depth-4,2,'metal');
+    if(type==='mobile'){
+      for(const y of [-depth/2+32,depth/2-32])box('carriage', (front+end+28)/2,y,42,end+28-front,42,48,'metalDark');
+      boundaries.forEach(x=>box('carriage-cross',x,0,42,36,depth-28,48,'metalDark'));
     }
-    if(cursor<width/2-2)add([local(cursor,-depth/2,height),local(width/2,-depth/2,height),local(width/2,depth/2,height),local(cursor,depth/2,height)],'planner3d-rack-section-top');
+    const wheel=type==='mobile'?{x:front-45,z:height*.45,radius:Math.min(180,depth*.27,height*.105),projection:parts.wheel,front,spokes:3}:null;
+    return{widths,type,width,depth,height,shelves,start,end,spans,levels,boxes,wheel,selectedDepth};
+  }
+  function archiveTopMarkup(o){
+    const m=archiveVisualModel(o);let markup='';
+    let x=m.start;
+    m.widths.forEach((w,i)=>{m.spans.forEach(([a,b])=>{
+      markup+=`<rect class="rack-section-shell" data-section="${i}" x="${x+14}" y="${a+3}" width="${w-28}" height="${b-a-6}"/><rect class="rack-sheet-fold" x="${x+17}" y="${a+6}" width="${w-34}" height="${b-a-12}"/>`;
+    });x+=w});
+    m.boxes.filter(b=>['front-return','end-frame','post'].includes(b.kind)&&b.z+b.sz/2>=m.height-3).forEach(b=>{
+      markup+=`<rect class="${b.kind==='front-return'?'rack-front-panel-tech':'rack-rear-panel-tech'}" x="${b.x-b.sx/2}" y="${b.y-b.sy/2}" width="${b.sx}" height="${b.sy}"/>`;
+    });
+    const panel=m.boxes.find(b=>b.kind==='front-panel');
+    markup+=`<rect class="rack-front-panel-tech" x="${panel.x-panel.sx/2}" y="${-m.depth/2}" width="${panel.sx}" height="${m.depth}"/>`;
+    if(m.wheel){const w=m.wheel;
+      markup+=`<line class="rack-handwheel-stem" x1="${w.x-15}" y1="0" x2="${w.front}" y2="0"/><ellipse class="rack-handwheel-tech" cx="${w.x}" cy="0" rx="14" ry="${w.radius}"/><ellipse class="rack-handwheel-highlight" cx="${w.x-2}" cy="0" rx="7" ry="${w.radius-12}"/><rect class="rack-wheel-grip" x="${w.front-w.projection+8}" y="${Math.cos(-.62)*w.radius-16}" width="82" height="32" rx="10"/>`;
+    }
+    return markup;
+  }
+  function planner3dRackMarkup(o,camera,invalid,options={}){
+    const m=archiveVisualModel(o),local=(x,y,z)=>planner3dLocalPoint(o,x,y,z),faces=[],coverFaces=[],isInvalid=invalid.has(o._sourceId||o.id),suffix=isInvalid?' invalid':'',attrs=`data-planner3d-object="${esc(o._sourceId||o.id)}"`;
+    m.boxes.filter(b=>b.kind!=='post-hole').forEach(b=>{
+      const x0=b.x-b.sx/2,x1=b.x+b.sx/2,y0=b.y-b.sy/2,y1=b.y+b.sy/2,z0=b.z-b.sz/2,z1=b.z+b.sz/2;
+      const cls=({shelf:'planner3d-shelf-top','shelf-return':'planner3d-shelf-edge','end-frame':'planner3d-rack-divider',post:'planner3d-rack-divider','front-panel':'planner3d-rack-end','front-return':'planner3d-rack-end',carriage:'planner3d-base-face','carriage-cross':'planner3d-base-face',foot:'planner3d-base-face'})[b.kind]||'planner3d-rack-divider';
+      const sides=[[[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]]];
+      const nearX=camera.raw(local(x0,b.y,b.z)).depth>camera.raw(local(x1,b.y,b.z)).depth?x0:x1;
+      const nearY=camera.raw(local(b.x,y0,b.z)).depth>camera.raw(local(b.x,y1,b.z)).depth?y0:y1;
+      sides.push([[nearX,y0,z0],[nearX,y1,z0],[nearX,y1,z1],[nearX,y0,z1]],[[x0,nearY,z0],[x1,nearY,z0],[x1,nearY,z1],[x0,nearY,z1]]);
+      const frontVisible=camera.raw(local(-m.width/2,0,m.height/2)).depth>=camera.raw(local(m.width/2,0,m.height/2)).depth,target=frontVisible&&['front-panel','front-return'].includes(b.kind)?coverFaces:faces;
+      sides.forEach(points=>target.push(planner3dSurface(camera,points.map(p=>local(...p)),cls+suffix,`data-archive-part="${b.kind}" data-section="${b.section}"`)));
+    });
+    const nearY=camera.raw(local(0,-m.depth/2,m.height/2)).depth>=camera.raw(local(0,m.depth/2,m.height/2)).depth?-1:1,span=m.spans[nearY<0?0:m.spans.length-1];
+    const folders=options.folders===false?{faces:[],labels:[]}:planner3dCoronaFolders(o,camera,local,m.widths,m.start,m.shelves,m.height, {from:span[0],to:span[1]},nearY,m.selectedDepth);faces.push(...folders.faces);faces.sort((a,b)=>a.depth-b.depth);coverFaces.sort((a,b)=>a.depth-b.depth);
     let wheel='';
-    const leftDepth=camera.raw(local(-width/2,0,height*.44)).depth,rightDepth=camera.raw(local(width/2,0,height*.44)).depth;
-    if(type==='mobile'&&leftDepth>=rightDepth){const x=frontPanelX-13,cz=height*.44,radius=Math.max(62,Math.min(205,depth*.28,height*.12)),ring=Array.from({length:25},(_,i)=>{const t=Math.PI*2*i/24;return local(x,Math.cos(t)*radius,cz+Math.sin(t)*radius)}),center=local(x,0,cz),cp=camera.project(center),handlePoint=local(x,Math.cos(-.66)*radius,cz+Math.sin(-.66)*radius),hp=camera.project(handlePoint),spokes=Array.from({length:6},(_,i)=>{const t=Math.PI*2*i/6;return planner3dLine(camera,center,local(x,Math.cos(t)*radius*.82,cz+Math.sin(t)*radius*.82),'planner3d-wheel-spoke')}).join('');wheel=`<g class="planner3d-wheel" data-wheel="${esc(o.wheelId||'d80')}"><polyline class="planner3d-wheel-rim" points="${camera.screenPoints(ring)}"/>${spokes}<circle class="planner3d-wheel-hub" cx="${cp.x.toFixed(2)}" cy="${cp.y.toFixed(2)}" r="6"/><circle class="planner3d-wheel-handle" cx="${hp.x.toFixed(2)}" cy="${hp.y.toFixed(2)}" r="4.6"/></g>`}
-    const folders=planner3dCoronaFolders(o,camera,local,widths,shelfStart,shelves,height,nearSpan,nearY,selectedDepth);faces.push(...folders.faces);faces.sort((a,b)=>a.depth-b.depth);
-    return`<g class="planner3d-rack${isInvalid?' invalid':''}" data-planner3d-object="${esc(o._sourceId||o.id)}"><title>${esc(o.label||catalogTypeLabel(type))} · ${Math.round(height)}×${Math.round(width)}×${Math.round(depth)} мм · ${widths.length} секц. · ${shelves} полок${pstate().showCrownFolders3d?' · папки «Корона»':''}</title>${faces.map(face=>face.markup).join('')}${lines.join('')}${details.join('')}${folders.labels.join('')}${wheel}</g>`
+    if(m.wheel&&camera.raw(local(-m.width/2,0,m.height*.45)).depth>=camera.raw(local(m.width/2,0,m.height*.45)).depth){
+      const w=m.wheel,center=local(w.x,0,w.z),cp=camera.project(center),ring=Array.from({length:49},(_,i)=>local(w.x,Math.cos(i*Math.PI/24)*w.radius,w.z+Math.sin(i*Math.PI/24)*w.radius)),hp=camera.project(local(w.front-w.projection+30,Math.cos(-.62)*w.radius,w.z+Math.sin(-.62)*w.radius));
+      wheel=`<g class="planner3d-wheel"><polyline class="planner3d-wheel-rim" points="${camera.screenPoints(ring)}"/>${Array.from({length:w.spokes},(_,i)=>planner3dLine(camera,center,local(w.x,Math.cos(i*2*Math.PI/w.spokes)*w.radius,w.z+Math.sin(i*2*Math.PI/w.spokes)*w.radius),'planner3d-wheel-spoke')).join('')}<circle class="planner3d-wheel-hub" cx="${cp.x}" cy="${cp.y}" r="4"/>${planner3dLine(camera,local(w.x,Math.cos(-.62)*w.radius,w.z+Math.sin(-.62)*w.radius),local(w.front-w.projection+30,Math.cos(-.62)*w.radius,w.z+Math.sin(-.62)*w.radius),'planner3d-wheel-spoke')}<circle class="planner3d-wheel-handle" cx="${hp.x}" cy="${hp.y}" r="3.2"/></g>`;
+    }
+    return`<g class="planner3d-rack${suffix}" ${attrs}><title>${esc(o.label||catalogTypeLabel(m.type))} · ${Math.round(m.height)}×${Math.round(m.width)}×${Math.round(m.depth)} мм · ${m.shelves} полок</title>${faces.map(f=>f.markup).join('')}${folders.labels.join('')}${coverFaces.map(f=>f.markup).join('')}${wheel}</g>`;
   }
   function planner3dColumnMarkup(o,camera,height,invalid){
     const width=Math.max(50,Number(o.width)||500),depth=Math.max(50,Number(o.depth)||500),bottom=planner3dBoxCorners(o,width,depth,0),top=planner3dBoxCorners(o,width,depth,height),faces=[planner3dSurface(camera,top,'planner3d-column-face top'+(invalid?' invalid':''))];
@@ -3157,8 +3184,8 @@ function renderCatalog(){
       floor:new THREE.MeshStandardMaterial({color:0xc7c9c6,map:floorTexture,bumpMap:floorBump,bumpScale:.018,roughness:.9,metalness:.025,envMapIntensity:.28}),
       wall:new THREE.MeshStandardMaterial({color:0xf1efe8,roughness:.88,metalness:0,envMapIntensity:.15}),
       wallSide:new THREE.MeshStandardMaterial({color:0xd9dfe2,roughness:.86,metalness:.015,envMapIntensity:.18}),
-      metal:coated({color:0xbfc1bd,metalness:.22,roughness:.49}),
-      metalLight:coated({color:0xd4d5d1,metalness:.2,roughness:.46}),
+      metal:coated({color:0xc5c7c8,metalness:.22,roughness:.49}),
+      metalLight:coated({color:0xdcdedf,metalness:.2,roughness:.46}),
       metalDark:coated({color:0x727a7e,metalness:.35,roughness:.42}),
       drive:coated({color:0x969d9f,metalness:.24,roughness:.46}),
       post:coated({color:0x71797c,metalness:.4,roughness:.39}),
@@ -3168,7 +3195,7 @@ function renderCatalog(){
       hole:new THREE.MeshStandardMaterial({color:0x20262b,roughness:.55,metalness:.32}),
       panelInset:coated({color:0x888f92,metalness:.28,roughness:.5}),
       wheel:coated({color:0xe2e5e6,metalness:.72,roughness:.25,envMapIntensity:1.05,bumpMap:null}),
-      wheelDark:coated({color:0x263f5a,metalness:.48,roughness:.31,bumpMap:null}),
+      wheelDark:coated({color:0x34393d,metalness:.48,roughness:.31,bumpMap:null}),
       folders,
       folderLabel:new THREE.MeshBasicMaterial({map:labelTexture,side:THREE.DoubleSide,toneMapped:false}),
       aisle:new THREE.MeshStandardMaterial({color:0x5fbd9c,transparent:true,opacity:.32,roughness:.82,depthWrite:false}),
@@ -3226,7 +3253,7 @@ function renderCatalog(){
   function planner3dRequestRender(interactive=false){
     const engine=planner3dWebgl;
     if(interactive){engine.interacting=true;clearTimeout(engine.interactionTimer);engine.interactionTimer=setTimeout(()=>{engine.interacting=false;if($('#planner3dModal')?.classList.contains('open'))planner3dRequestRender(false)},150)}
-    if(engine.renderFrame)return;engine.renderFrame=requestAnimationFrame(()=>{engine.renderFrame=0;if(!$('#planner3dModal')?.classList.contains('open'))return;if(engine.ready&&engine.lastContext){planner3dRenderWebgl(engine.lastContext);planner3dSyncStatus(engine.lastContext)}else renderPlanner3d()})
+    syncPlanner3dQuoteButton();if(engine.renderFrame)return;engine.renderFrame=requestAnimationFrame(()=>{engine.renderFrame=0;if(!$('#planner3dModal')?.classList.contains('open'))return;if(engine.ready&&engine.lastContext){planner3dRenderWebgl(engine.lastContext);planner3dSyncStatus(engine.lastContext)}else renderPlanner3d()})
   }
   function planner3dEndInteraction(){
     const engine=planner3dWebgl;clearTimeout(engine.interactionTimer);engine.interactionTimer=0;if(!engine.interacting)return;engine.interacting=false;planner3dRequestRender(false)
@@ -3280,60 +3307,29 @@ function renderCatalog(){
     batches.forEach((items,index)=>planner3dAddInstances(parent,new THREE.BoxGeometry(1,1,1),materials.folders[index],items,{cast:false,receive:true}));
     const labelMesh=planner3dAddInstances(parent,new THREE.PlaneGeometry(1,1),materials.folderLabel,labels,{cast:false,receive:false});if(labelMesh)labelMesh.renderOrder=4
   }
-  function planner3dBuildWheel(parent,panelOuterX,depth,height){
-    const materials=planner3dWebgl.materials,radius=Math.max(.075,Math.min(.18,depth*.27,height*.105)),x=panelOuterX-.034,centerY=height*.45;
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(radius,.014,14,64),materials.wheel);ring.position.set(x,centerY,0);ring.rotation.y=Math.PI/2;ring.castShadow=true;parent.add(ring);
-    const hub=new THREE.Mesh(new THREE.CylinderGeometry(.038,.038,.055,24),materials.wheelDark);hub.position.set(x-.005,centerY,0);hub.rotation.z=Math.PI/2;hub.castShadow=true;parent.add(hub);
-    for(let i=0;i<6;i++){const angle=i*Math.PI/3,end=[x,centerY+Math.sin(angle)*radius*.78,Math.cos(angle)*radius*.78];planner3dCylinderBetween(parent,[x,centerY,0],end,.0075,materials.wheelDark,10)}
-    const handleAngle=-.62,handleCenter=[x-.035,centerY+Math.sin(handleAngle)*radius,Math.cos(handleAngle)*radius];
-    planner3dCylinderBetween(parent,[x,handleCenter[1],handleCenter[2]],[x-.075,handleCenter[1],handleCenter[2]],.012,materials.wheelDark,14);
-    const grip=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.055,18),materials.wheelDark);grip.position.set(x-.084,handleCenter[1],handleCenter[2]);grip.rotation.z=Math.PI/2;grip.castShadow=true;parent.add(grip)
+  function planner3dBuildWheel(parent,w){
+    const materials=planner3dWebgl.materials,x=planner3dMeters(w.x),centerY=planner3dMeters(w.z),radius=planner3dMeters(w.radius);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(radius,.012,10,48),materials.wheel);ring.position.set(x,centerY,0);ring.rotation.y=Math.PI/2;ring.castShadow=true;parent.add(ring);
+    const hub=new THREE.Mesh(new THREE.CylinderGeometry(.028,.028,.042,18),materials.wheelDark);hub.position.set(x,centerY,0);hub.rotation.z=Math.PI/2;hub.castShadow=true;parent.add(hub);
+    planner3dCylinderBetween(parent,[planner3dMeters(w.front),centerY,0],[x,centerY,0],.014,materials.wheel,12);
+    for(let i=0;i<w.spokes;i++){const angle=i*2*Math.PI/w.spokes;planner3dCylinderBetween(parent,[x,centerY,0],[x,centerY+Math.sin(angle)*radius*.95,Math.cos(angle)*radius*.95],.009,materials.wheel,10)}
+    const handleY=centerY+Math.sin(-.62)*radius,handleZ=Math.cos(-.62)*radius,endX=planner3dMeters(w.front-w.projection+30);
+    planner3dCylinderBetween(parent,[x,handleY,handleZ],[endX,handleY,handleZ],.014,materials.wheelDark,12);
+    planner3dCylinderBetween(parent,[endX+.023,handleY,handleZ],[endX-.022,handleY,handleZ],.021,materials.wheelDark,14);
   }
   function planner3dBuildRackWebgl(o,parent,context){
-    const materials=planner3dWebgl.materials,widthsMm=rackSectionWidths(o),type=o.rackType||'mobile',selectedDepth=planner3dMeters(Math.max(1,Number(o.depthMm)||300)),width=planner3dMeters(actualRackWidth(widthsMm,type)),depth=planner3dMeters(actualDepth(Number(o.depthMm)||300,type)),height=planner3dMeters(Math.max(700,Number(o.heightMm)||1996)),shelves=Math.max(2,Math.min(12,clampInt(o.shelfCount||6))),parts=rackWidthAllowances(type),shelfStart=-width/2+planner3dMeters(parts.left),isDouble=type!=='stationary_single',centerGap=isDouble?Math.max(0,depth-selectedDepth*2):0,spans=isDouble?[[-depth/2,-centerGap/2],[centerGap/2,depth/2]]:[[-depth/2+.018,depth/2-.018]],invalid=context.invalid.has(o._sourceId||o.id);
-    const group=new THREE.Group();group.position.set(planner3dMeters(Number(o.cx)-context.center[0]),0,planner3dMeters(Number(o.cy)-context.center[1]));group.rotation.y=-(Number(o.rotation)||0)*Math.PI/180;parent.add(group);
-    const shelfLevels=Array.from({length:shelves},(_,index)=>planner3dMeters(82+(height*1000-190)*(shelves===1?0:index/(shelves-1))));
-    let cursor=shelfStart;const boundaries=[shelfStart],lightShelves=[],regularShelves=[],shelfLips=[];
-    widthsMm.forEach((rawWidth,sectionIndex)=>{
-      const sectionWidth=planner3dMeters(rawWidth),x0=cursor,x1=cursor+sectionWidth,inset=Math.min(.018,sectionWidth*.025);
-      spans.forEach(span=>{
-        const spanDepth=Math.max(.045,span[1]-span[0]),centerZ=(span[0]+span[1])/2;
-        shelfLevels.forEach((shelfY,shelfIndex)=>{
-          (sectionIndex===0?lightShelves:regularShelves).push({x:(x0+x1)/2,y:shelfY,z:centerZ,sx:sectionWidth-inset*2,sy:.022,sz:spanDepth-.018});
-          const outer=span[0]<0?span[0]+.012:span[1]-.012;shelfLips.push({x:(x0+x1)/2,y:shelfY-.005,z:outer,sx:sectionWidth-inset*2,sy:.032,sz:.018})
-        });
-        lightShelves.push({x:(x0+x1)/2,y:height-.014,z:centerZ,sx:sectionWidth,sy:.025,sz:spanDepth})
-      });
-      cursor=x1;boundaries.push(cursor)
+    const m=archiveVisualModel(o),materials=planner3dWebgl.materials,group=new THREE.Group(),invalid=context.invalid.has(o._sourceId||o.id);
+    group.position.set(planner3dMeters(Number(o.cx)-context.center[0]),0,planner3dMeters(Number(o.cy)-context.center[1]));group.rotation.y=-(Number(o.rotation)||0)*Math.PI/180;parent.add(group);
+    const batches=new Map();
+    m.boxes.forEach(b=>{
+      const key=b.material;if(!batches.has(key))batches.set(key,[]);
+      batches.get(key).push({x:planner3dMeters(b.x),y:planner3dMeters(b.z),z:planner3dMeters(b.y),sx:planner3dMeters(b.sx),sy:planner3dMeters(b.sz),sz:planner3dMeters(b.sy)});
     });
-    planner3dAddInstances(group,new THREE.BoxGeometry(1,1,1),materials.metalLight,lightShelves,{cast:false,receive:true});
-    planner3dAddInstances(group,new THREE.BoxGeometry(1,1,1),materials.metal,regularShelves,{cast:false,receive:true});
-    planner3dAddInstances(group,new THREE.BoxGeometry(1,1,1),materials.metalDark,shelfLips,{cast:false,receive:true});
-    const postZ=new Set([(-depth/2+.022).toFixed(4),(depth/2-.022).toFixed(4)]);
-    if(isDouble&&centerGap>.025){postZ.add((-centerGap/2-.012).toFixed(4));postZ.add((centerGap/2+.012).toFixed(4))}
-    const posts=[],holes=[];
-    boundaries.forEach(x=>{
-      [...postZ].forEach(value=>posts.push({x,y:(height+.055)/2,z:Number(value),sx:.026,sy:height-.095,sz:.034}));
-      const holeCount=Math.max(7,Math.min(14,Math.floor((height-.22)/.14)));
-      for(let hole=0;hole<holeCount;hole++){
-        const y=.15+hole*(height-.27)/Math.max(1,holeCount-1);
-        holes.push({x,y,z:-depth/2-.001,sx:.009,sy:.022,sz:.0045},{x,y,z:depth/2+.001,sx:.009,sy:.022,sz:.0045})
-      }
-    });
-    planner3dAddInstances(group,new THREE.BoxGeometry(1,1,1),materials.post,posts,{cast:false,receive:true});
-    planner3dAddInstances(group,new THREE.BoxGeometry(1,1,1),materials.hole,holes,{cast:false,receive:false});
-    if(isDouble){
-      const backThickness=.007,backZ=centerGap>.025?[-centerGap/2,centerGap/2]:[0];
-      backZ.forEach(z=>planner3dAddBox(group,Math.max(.08,cursor-shelfStart),height-.13,backThickness,(shelfStart+cursor)/2,(height+.055)/2,z,materials.metal,{cast:true,receive:true}))
-    }else planner3dAddBox(group,Math.max(.08,cursor-shelfStart),height-.13,.007,(shelfStart+cursor)/2,(height+.055)/2,depth/2-.018,materials.metal,{cast:true,receive:true});
-    const frontPanelWidth=Math.max(.09,planner3dMeters(parts.frontPanel)),frontPanelOuterX=shelfStart-frontPanelWidth,facadeThickness=Math.min(.022,frontPanelWidth*.24),coreWidth=Math.max(.025,frontPanelWidth-facadeThickness);
-    planner3dAddBox(group,coreWidth,height-.045,depth,frontPanelOuterX+facadeThickness+coreWidth/2,(height+.025)/2,0,materials.drive,{cast:true,receive:true});
-    planner3dAddBeveledPanel(group,facadeThickness,height-.045,depth,frontPanelOuterX+facadeThickness/2,(height+.025)/2,0,materials.drive,{edges:true,invalid,bevel:.018});
-    for(let seam=0;seam<3;seam++){const z=(-.22+seam*.22)*Math.min(1,depth/.6);planner3dAddBox(group,.004,height*.72,.009,frontPanelOuterX-.002,height*.52,z,materials.metalDark,{cast:false})}
-    if(type==='mobile')planner3dBuildWheel(group,frontPanelOuterX,depth,height);
-    planner3dAddBox(group,.028,height-.045,depth,width/2-.014,(height+.025)/2,0,materials.metal,{edges:true,invalid});
-    if(context.filled)planner3dBuildFolders(group,widthsMm,shelfStart,shelfLevels,spans,selectedDepth);
-    group.userData={plannerObjectId:o._sourceId||o.id,type:'rack'};return group
+    batches.forEach((items,key)=>planner3dAddInstances(group,new THREE.BoxGeometry(1,1,1),materials[key],items,{cast:key!=='hole',receive:key!=='hole'}));
+    if(invalid){const panel=m.boxes.find(b=>b.kind==='front-panel');planner3dAddBox(group,.003,planner3dMeters(panel.sz),planner3dMeters(panel.sy),planner3dMeters(panel.x),planner3dMeters(panel.z),0,materials.metalLight,{edges:true,invalid:true})}
+    if(m.wheel)planner3dBuildWheel(group,m.wheel);
+    if(context.filled)planner3dBuildFolders(group,m.widths,planner3dMeters(m.start),m.levels.map(planner3dMeters),m.spans.map(span=>span.map(planner3dMeters)),planner3dMeters(m.selectedDepth));
+    group.userData={plannerObjectId:o._sourceId||o.id,type:'rack'};return group;
   }
   function planner3dWallBands(context,index,wallTopMm){
     const info=plannerWallInfo(index,context.poly);if(!info)return[];
@@ -3377,7 +3373,9 @@ function renderCatalog(){
   }
   function planner3dUpdateWebglCamera(context,width,height){
     const engine=planner3dWebgl,poly=context.poly,minX=Math.min(...poly.map(p=>p[0])),maxX=Math.max(...poly.map(p=>p[0])),minY=Math.min(...poly.map(p=>p[1])),maxY=Math.max(...poly.map(p=>p[1])),roomWidth=planner3dMeters(maxX-minX),roomDepth=planner3dMeters(maxY-minY),rackHeight=planner3dMeters(Math.max(0,...context.racks.map(o=>Number(o.heightMm)||1996))),sceneHeight=Math.max(rackHeight,planner3dMeters(context.wallHeight)*.72),diagonal=Math.hypot(roomWidth,roomDepth),elevation=planner3dView.elevation*Math.PI/180,azimuth=planner3dView.azimuth*Math.PI/180,distance=Math.max(diagonal*.98,sceneHeight*3.15,5.2)/Math.max(.56,planner3dView.zoom),targetY=Math.max(.62,Math.min(1.35,sceneHeight*.42));
-    engine.camera.aspect=Math.max(.25,width/Math.max(1,height));engine.camera.position.set(Math.cos(azimuth)*Math.cos(elevation)*distance,targetY+Math.sin(elevation)*distance,Math.sin(azimuth)*Math.cos(elevation)*distance);engine.camera.lookAt(0,targetY,0);engine.camera.updateProjectionMatrix();
+    engine.camera.aspect=Math.max(.25,width/Math.max(1,height));engine.camera.position.set(Math.cos(azimuth)*Math.cos(elevation)*distance,targetY+Math.sin(elevation)*distance,Math.sin(azimuth)*Math.cos(elevation)*distance);// Pan in the camera plane; move position and target together to preserve the angle.
+    const visibleHeight=2*distance*Math.tan(engine.camera.fov*Math.PI/360),offset=new THREE.Vector3(Math.sin(azimuth),0,-Math.cos(azimuth)).multiplyScalar(-planner3dView.panX*visibleHeight).add(new THREE.Vector3(-Math.cos(azimuth)*Math.sin(elevation),Math.cos(elevation),-Math.sin(azimuth)*Math.sin(elevation)).multiplyScalar(planner3dView.panY*visibleHeight));
+    engine.camera.position.add(offset);engine.camera.lookAt(offset.x,targetY+offset.y,offset.z);engine.camera.updateProjectionMatrix();
     const shadowSpan=Math.max(7,diagonal*.78);engine.keyLight.position.set(-shadowSpan*.72,Math.max(8,rackHeight*4.5),-shadowSpan*.62);engine.keyLight.target.position.set(0,0,0);
     const shadowCamera=engine.keyLight.shadow.camera;shadowCamera.left=shadowCamera.bottom=-shadowSpan;shadowCamera.right=shadowCamera.top=shadowSpan;shadowCamera.near=.1;shadowCamera.far=Math.max(24,rackHeight*9);shadowCamera.updateProjectionMatrix();
     engine.scene.fog.near=Math.max(13,distance*.9);engine.scene.fog.far=Math.max(28,distance*2.15)
@@ -3436,6 +3434,7 @@ function renderCatalog(){
     }
     if(!created||poly.length<3){svg.innerHTML='';planner3dClearWebgl();const status=$('#planner3dStatus');if(status)status.textContent='Сначала создайте помещение';return}
     ensureWallOpeningAttachments();const openings=pstate().objects.filter(isWallOpening),minX=Math.min(...poly.map(p=>p[0])),maxX=Math.max(...poly.map(p=>p[0])),minY=Math.min(...poly.map(p=>p[1])),maxY=Math.max(...poly.map(p=>p[1])),center=[(minX+maxX)/2,(minY+maxY)/2],maxSceneHeight=Math.max(2220,...racks.map(o=>Number(o.heightMm)||1996),...openings.map(o=>(o.kind==='window'?Number(o.sillMm)||0:0)+(Number(o.heightMm)||0))),wallHeight=Math.max(2500,Math.min(3500,maxSceneHeight+280)),invalid=plannerIssues().invalidIds||new Set(),area=polygonArea(poly)/1e6,sections=racks.reduce((sum,o)=>sum+rackSectionWidths(o).length,0),context={poly,racks,center,wallHeight,invalid,filled,area,sections,openings},worldPoints=[];
+    svg.setAttribute('data-pan-x',String(planner3dView.panX));svg.setAttribute('data-pan-y',String(planner3dView.panY));
     svg.setAttribute('data-azimuth',String(Math.round(planner3dView.azimuth)));svg.setAttribute('data-elevation',String(Math.round(planner3dView.elevation)));svg.setAttribute('data-zoom',planner3dView.zoom.toFixed(2));
     planner3dSyncStatus(context);
     if(!forceSvg&&planner3dRenderWebgl(context))return;
@@ -3500,9 +3499,9 @@ function renderCatalog(){
     toast(pstate().showCrownFolders3d?'Архив наполнен папками «Корона»':'Папки «Корона» убраны с полок','good')
   }
   function adjustPlanner3d(azimuth=0,elevation=0,zoomFactor=1){planner3dView.azimuth=((planner3dView.azimuth+azimuth+540)%360)-180;planner3dView.elevation=Math.max(10,Math.min(70,planner3dView.elevation+elevation));planner3dView.zoom=Math.max(.62,Math.min(2.45,planner3dView.zoom*zoomFactor));renderPlanner3d()}
-  function resetPlanner3d(){planner3dView.azimuth=-138;planner3dView.elevation=29;planner3dView.zoom=1;renderPlanner3d()}
+  function resetPlanner3d(){planner3dView.azimuth=-138;planner3dView.elevation=29;planner3dView.zoom=1;planner3dView.panX=0;planner3dView.panY=0;renderPlanner3d()}
   function planner3dQuoteView(){return normalizePlanner3dView(pstate().quote3dView)}
-  function planner3dViewMatchesQuote(){const saved=planner3dQuoteView();return Math.abs(saved.azimuth-planner3dView.azimuth)<.05&&Math.abs(saved.elevation-planner3dView.elevation)<.05&&Math.abs(saved.zoom-planner3dView.zoom)<.002}
+  function planner3dViewMatchesQuote(){const saved=planner3dQuoteView();return Math.abs(saved.azimuth-planner3dView.azimuth)<.05&&Math.abs(saved.elevation-planner3dView.elevation)<.05&&Math.abs(saved.zoom-planner3dView.zoom)<.002&&Math.abs(saved.panX-planner3dView.panX)<.0001&&Math.abs(saved.panY-planner3dView.panY)<.0001}
   function syncPlanner3dQuoteButton(){const button=$('#planner3dSaveQuoteView');if(!button)return;const saved=planner3dViewMatchesQuote(),label=button.querySelector('.planner-3d-quote-label');button.classList.toggle('active',saved);button.setAttribute('aria-pressed',saved?'true':'false');button.title=saved?'Этот ракурс используется в коммерческом предложении':'Сохранить текущий угол обзора и масштаб для коммерческого предложения';if(label)label.textContent=saved?'Ракурс сохранён для КП':'Сохранить ракурс для КП'}
   function savePlanner3dQuoteView(){pstate().quote3dView=normalizePlanner3dView(planner3dView);syncPlanner3dQuoteButton();persist();toast('Текущий 3D-ракурс сохранён для коммерческого предложения','good')}
   function withPlanner3dQuoteView(callback){const previous={...planner3dView},modalOpen=$('#planner3dModal')?.classList.contains('open');Object.assign(planner3dView,planner3dQuoteView());try{return callback()}finally{Object.assign(planner3dView,previous);if(modalOpen)renderPlanner3d()}}
@@ -3547,7 +3546,7 @@ function renderCatalog(){
   function addTool(kind){const defaults={column:{width:500,depth:500,label:`Колонна ${pstate().counter}`},door:{width:900,depth:900,heightMm:2100,hingeSide:'left',swingDirection:'in',label:`Дверь ${pstate().counter}`},window:{width:1200,depth:120,heightMm:1400,sillMm:900,label:`Окно ${pstate().counter}`},zone:{width:1500,depth:1000,label:`Запретная зона ${pstate().counter}`},aisle:{width:3000,depth:1200,label:`Проход ${pstate().counter}`}}[kind];if(defaults)addObject({kind,...defaults});}
   function setSelectedProperty(prop,value){const o=selected();if(!o)return;pushPlannerHistory();magnetGuide=null;const opening=isWallOpening(o),anchor=opening?wallOpeningAnchor(o):null;if(prop==='label')o.label=String(value||objectName(o.kind));else if(prop==='x'){if(opening)syncWallOpeningFromAttachment(o,{x:Number(value),y:anchor?.y??Number(o.cy)});else{const nr=footprint(o);o.cx=Number(value)+nr.w/2}}else if(prop==='y'){if(opening)syncWallOpeningFromAttachment(o,{x:anchor?.x??Number(o.cx),y:Number(value)});else{const nr=footprint(o);o.cy=Number(value)+nr.h/2}}else if(prop==='width'&&o.kind!=='archive'){o.width=Math.max(opening?400:50,Number(value)||(opening?400:50));if(o.kind==='door')o.depth=o.width;if(opening)syncWallOpeningFromAttachment(o)}else if(prop==='depth'&&o.kind!=='archive'&&o.kind!=='door')o.depth=Math.max(o.kind==='window'?60:50,Number(value)||(o.kind==='window'?60:50));else if(prop==='rotation'&&!opening)o.rotation=Number(value)||0;else if(prop==='heightMm')o.heightMm=Number(value)||1996;else if(prop==='openingHeight')o.heightMm=Math.max(300,Math.min(4000,Number(value)||300));else if(prop==='sillMm'&&o.kind==='window')o.sillMm=Math.max(0,Math.min(3000,Number(value)||0));else if(prop==='hingeSide'&&o.kind==='door')o.hingeSide=value==='right'?'right':'left';else if(prop==='swingDirection'&&o.kind==='door'){o.swingDirection=value==='out'?'out':'in';syncWallOpeningFromAttachment(o)}else if(prop==='shelfCount')o.shelfCount=Math.max(2,Math.min(12,clampInt(value)));else if(prop==='sections'){o.sections=Math.max(1,clampInt(value));o.width=actualRackWidth(Array(o.sections).fill(Number(o.sectionWidth)||1000),o.rackType)}else if(prop==='wheelId')o.wheelId=String(value||'d80');renderPlanner();persist()}
   function plannerExportBounds(){const pts=[...roomPoints()];pstate().objects.forEach(o=>pts.push(...rectCorners(footprint(o))));if(!pts.length)pts.push([0,0],[6000,5000]);let minX=Math.min(...pts.map(p=>p[0]),0),minY=Math.min(...pts.map(p=>p[1]),0),maxX=Math.max(...pts.map(p=>p[0]),1000),maxY=Math.max(...pts.map(p=>p[1]),1000);const margin=Math.max(850,(maxX-minX+maxY-minY)/18);return{x:minX-margin,y:minY-margin,w:maxX-minX+margin*2,h:maxY-minY+margin*2}}
-  function plannerExportCss(){return `.grid-major{stroke:#cbd4e1;stroke-width:1;vector-effect:non-scaling-stroke}.grid-minor{stroke:#e2e7ee;stroke-width:.7;vector-effect:non-scaling-stroke}.room-fill{fill:#fff;stroke:#263a5e;stroke-width:16;vector-effect:non-scaling-stroke}.room-wall{stroke:#263a5e;stroke-width:16;vector-effect:non-scaling-stroke;fill:none}.dim-line{stroke:#c9303b;stroke-width:2.4;vector-effect:non-scaling-stroke}.dim-ext{stroke:#df7780;stroke-width:1.3;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}.dim-text{fill:#bd2732;font-size:105px;font-weight:900;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:20;stroke-linejoin:round}.object-label{fill:#15213a;font-size:92px;font-weight:800;text-anchor:middle;dominant-baseline:middle;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:12}.object-sub{font-size:68px;font-weight:600;fill:#536076}.rack-sub{font-size:59px}.archive-body{fill:url(#plannerRackGradient);stroke:#526f9f;stroke-width:2.2;vector-effect:non-scaling-stroke}.stationary-rack-body{fill:url(#plannerStationaryGradient);stroke:#69798f;stroke-width:2.2;vector-effect:non-scaling-stroke}.group-body{fill:#e5e0ff;stroke:#7561b4;stroke-width:2;vector-effect:non-scaling-stroke}.column-body{fill:#aab4c2;stroke:#556171;stroke-width:2;vector-effect:non-scaling-stroke}.zone-body{fill:url(#plannerDangerHatch);stroke:#c5363f;stroke-width:2;vector-effect:non-scaling-stroke}.aisle-body{fill:url(#plannerAisleHatch);stroke:#17825f;stroke-width:2;vector-effect:non-scaling-stroke}.door-body{fill:#fcebd3;fill-opacity:.7;stroke:#c37a00;stroke-width:2;vector-effect:non-scaling-stroke}.object-detail{stroke:#7890b4;stroke-width:1.2;vector-effect:non-scaling-stroke;pointer-events:none}.aisle-detail{stroke:#6d5aa8}.rack-top-strip{fill:rgba(255,255,255,.62)}.rack-base-strip{fill:rgba(57,79,114,.16)}.rack-front-zone{fill:#d7e0ed;stroke:#7186a5;stroke-width:1.2;vector-effect:non-scaling-stroke}.rack-rear-zone{fill:#c5d0df;stroke:#7186a5;stroke-width:1.2;vector-effect:non-scaling-stroke}.rack-part-label{fill:#465b7a;font-size:34px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:5}.rack-rail{stroke:#435b7d;stroke-width:4;vector-effect:non-scaling-stroke;opacity:.78}.rack-rail-highlight{stroke:#f7f9fc;stroke-width:1.3;vector-effect:non-scaling-stroke}.section-panel{fill:rgba(255,255,255,.32);stroke:#87a0c5;stroke-width:1;vector-effect:non-scaling-stroke}.main-section-highlight{fill:rgba(37,99,235,.18);stroke:#4c73b9;stroke-width:1.2;vector-effect:non-scaling-stroke}.section-role-pill{fill:#fff;fill-opacity:.9;stroke:#a8b9d3;stroke-width:1;vector-effect:non-scaling-stroke}.section-role-pill.main-pill{fill:#2563eb;stroke:#1746b8}.section-role-text{fill:#607087;font-size:44px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:6}.section-role-text.main-role{fill:#fff;stroke:#2563eb;stroke-width:4}.rack-wheel .wheel-rim{fill:#f9fbff;stroke:#233f6d;stroke-width:5;vector-effect:non-scaling-stroke}.rack-wheel .wheel-hub{fill:#233f6d;stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}.rack-wheel .wheel-spoke{stroke:#233f6d;stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke}.rack-wheel .wheel-handle{fill:#233f6d;stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke}.center-line{stroke-dasharray:8 5}.rack-footprint{fill:transparent;stroke:transparent}.rack-section-shell{fill:#f2f2f2;stroke:#172033;stroke-width:2.2;vector-effect:non-scaling-stroke}.rack-section-shell.main-rack-section{fill:#aeb1b5}.rack-center-divider{stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke}.rack-front-panel-tech{fill:#9ca1a7;stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke}.rack-rear-panel-tech{fill:#d8dadd;stroke:#172033;stroke-width:1.8;vector-effect:non-scaling-stroke}.rack-front-bracket{fill:none;stroke:#172033;stroke-width:2.2;vector-effect:non-scaling-stroke}.rack-handwheel-stem{stroke:#172033;stroke-width:17;vector-effect:non-scaling-stroke}.rack-handwheel-stem-highlight{stroke:#c7c9cc;stroke-width:11;vector-effect:non-scaling-stroke}.rack-handwheel-coupling{fill:#8f9398;stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke}.rack-handwheel-tech{fill:url(#plannerWheelGradient);stroke:#172033;stroke-width:2.4;vector-effect:non-scaling-stroke}.rack-handwheel-highlight{fill:none;stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}.plan-object.invalid .object-body{stroke:#c5363f;stroke-width:4;vector-effect:non-scaling-stroke}.plan-object.selected .object-body{stroke:#2455d6;stroke-width:3;vector-effect:non-scaling-stroke}.plan-object.invalid .rack-section-shell{stroke:#c5363f;stroke-width:3.5}.plan-object.selected .rack-section-shell{stroke:#2455d6;stroke-width:3}` }
+  function plannerExportCss(){return `.rack-sheet-fold{fill:none;stroke:#a4a9ac;stroke-width:.65;vector-effect:non-scaling-stroke;pointer-events:none}.rack-wheel-grip{fill:#343a40;stroke:#111820;stroke-width:.7;vector-effect:non-scaling-stroke;pointer-events:none}.grid-major{stroke:#cbd4e1;stroke-width:1;vector-effect:non-scaling-stroke}.grid-minor{stroke:#e2e7ee;stroke-width:.7;vector-effect:non-scaling-stroke}.room-fill{fill:#fff;stroke:#263a5e;stroke-width:16;vector-effect:non-scaling-stroke}.room-wall{stroke:#263a5e;stroke-width:16;vector-effect:non-scaling-stroke;fill:none}.dim-line{stroke:#c9303b;stroke-width:2.4;vector-effect:non-scaling-stroke}.dim-ext{stroke:#df7780;stroke-width:1.3;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}.dim-text{fill:#bd2732;font-size:105px;font-weight:900;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:20;stroke-linejoin:round}.object-label{fill:#15213a;font-size:92px;font-weight:800;text-anchor:middle;dominant-baseline:middle;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:12}.object-sub{font-size:68px;font-weight:600;fill:#536076}.rack-sub{font-size:59px}.archive-body{fill:url(#plannerRackGradient);stroke:#526f9f;stroke-width:2.2;vector-effect:non-scaling-stroke}.stationary-rack-body{fill:url(#plannerStationaryGradient);stroke:#69798f;stroke-width:2.2;vector-effect:non-scaling-stroke}.group-body{fill:#e5e0ff;stroke:#7561b4;stroke-width:2;vector-effect:non-scaling-stroke}.column-body{fill:#aab4c2;stroke:#556171;stroke-width:2;vector-effect:non-scaling-stroke}.zone-body{fill:url(#plannerDangerHatch);stroke:#c5363f;stroke-width:2;vector-effect:non-scaling-stroke}.aisle-body{fill:url(#plannerAisleHatch);stroke:#17825f;stroke-width:2;vector-effect:non-scaling-stroke}.door-body{fill:#fcebd3;fill-opacity:.7;stroke:#c37a00;stroke-width:2;vector-effect:non-scaling-stroke}.object-detail{stroke:#7890b4;stroke-width:1.2;vector-effect:non-scaling-stroke;pointer-events:none}.aisle-detail{stroke:#6d5aa8}.rack-top-strip{fill:rgba(255,255,255,.62)}.rack-base-strip{fill:rgba(57,79,114,.16)}.rack-front-zone{fill:#d7e0ed;stroke:#7186a5;stroke-width:1.2;vector-effect:non-scaling-stroke}.rack-rear-zone{fill:#c5d0df;stroke:#7186a5;stroke-width:1.2;vector-effect:non-scaling-stroke}.rack-part-label{fill:#465b7a;font-size:34px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:5}.rack-rail{stroke:#435b7d;stroke-width:4;vector-effect:non-scaling-stroke;opacity:.78}.rack-rail-highlight{stroke:#f7f9fc;stroke-width:1.3;vector-effect:non-scaling-stroke}.section-panel{fill:rgba(255,255,255,.32);stroke:#87a0c5;stroke-width:1;vector-effect:non-scaling-stroke}.main-section-highlight{fill:rgba(37,99,235,.18);stroke:#4c73b9;stroke-width:1.2;vector-effect:non-scaling-stroke}.section-role-pill{fill:#fff;fill-opacity:.9;stroke:#a8b9d3;stroke-width:1;vector-effect:non-scaling-stroke}.section-role-pill.main-pill{fill:#2563eb;stroke:#1746b8}.section-role-text{fill:#607087;font-size:44px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:6}.section-role-text.main-role{fill:#fff;stroke:#2563eb;stroke-width:4}.rack-wheel .wheel-rim{fill:#f9fbff;stroke:#233f6d;stroke-width:5;vector-effect:non-scaling-stroke}.rack-wheel .wheel-hub{fill:#233f6d;stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}.rack-wheel .wheel-spoke{stroke:#233f6d;stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke}.rack-wheel .wheel-handle{fill:#233f6d;stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke}.center-line{stroke-dasharray:8 5}.rack-footprint{fill:transparent;stroke:transparent}.rack-section-shell{fill:#f2f2f2;stroke:#172033;stroke-width:2.2;vector-effect:non-scaling-stroke}.rack-section-shell.main-rack-section{fill:#f2f2f2}.rack-center-divider{stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke}.rack-front-panel-tech{fill:#9ca1a7;stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke}.rack-rear-panel-tech{fill:#d8dadd;stroke:#172033;stroke-width:1.8;vector-effect:non-scaling-stroke}.rack-front-bracket{fill:none;stroke:#172033;stroke-width:2.2;vector-effect:non-scaling-stroke}.rack-handwheel-stem{stroke:#172033;stroke-width:17;vector-effect:non-scaling-stroke}.rack-handwheel-stem-highlight{stroke:#c7c9cc;stroke-width:11;vector-effect:non-scaling-stroke}.rack-handwheel-coupling{fill:#8f9398;stroke:#172033;stroke-width:2;vector-effect:non-scaling-stroke}.rack-handwheel-tech{fill:url(#plannerWheelGradient);stroke:#172033;stroke-width:2.4;vector-effect:non-scaling-stroke}.rack-handwheel-highlight{fill:none;stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}.plan-object.invalid .object-body{stroke:#c5363f;stroke-width:4;vector-effect:non-scaling-stroke}.plan-object.selected .object-body{stroke:#2455d6;stroke-width:3;vector-effect:non-scaling-stroke}.plan-object.invalid .rack-section-shell{stroke:#c5363f;stroke-width:3.5}.plan-object.selected .rack-section-shell{stroke:#2455d6;stroke-width:3}` }
   const plannerExportCssRailsAndRackDimsBase=plannerExportCss;plannerExportCss=function(){return plannerExportCssRailsAndRackDimsBase()+`.floor-rail-line{stroke:#53739e;stroke-width:5;vector-effect:non-scaling-stroke}.floor-rail-highlight{stroke:#edf4fb;stroke-width:1.4;vector-effect:non-scaling-stroke}.rail-motion-line{stroke:#d88716;stroke-width:2;stroke-dasharray:10 7;vector-effect:non-scaling-stroke}.rail-direction-pill,.rail-direction-text{display:none!important}.rack-dim-line{stroke:#2455a4;stroke-width:2;vector-effect:non-scaling-stroke}.rack-dim-ext{stroke:#7896c2;stroke-width:1.2;vector-effect:non-scaling-stroke}.rack-dim-text{fill:#1f4b88;font-size:68px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:16;stroke-linejoin:round}.rack-dim-depth-note{font-size:60px}`};
   const plannerExportCssBase=plannerExportCss;plannerExportCss=function(){return plannerExportCssBase()+`.clearance-line{stroke:#11976f;stroke-width:2.4;stroke-dasharray:8 5;vector-effect:non-scaling-stroke}.clearance-ext{stroke:#76c9af;stroke-width:1.2;vector-effect:non-scaling-stroke}.clearance-text{fill:#087354;font-size:78px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:18}.clearance-kind-text{fill:#31856d;font-size:34px;font-weight:850;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:9}.clearance-pill{fill:#e8f8f2;stroke:#59b999;stroke-width:1.2;vector-effect:non-scaling-stroke}.clearance-column .clearance-line{stroke:#d88716}.clearance-column .clearance-ext{stroke:#e7b86d}.clearance-column .clearance-pill{fill:#fff7e6;stroke:#d99a3b}.clearance-column .clearance-text{fill:#81530c}.clearance-column .clearance-kind-text{fill:#9a6718}.clearance-rack .clearance-line{stroke:#7652bf}.clearance-rack .clearance-ext{stroke:#a88ed9}.clearance-rack .clearance-pill{fill:#f3effc;stroke:#9576cf}.clearance-rack .clearance-text{fill:#5a3999}.clearance-rack .clearance-kind-text{fill:#7652a9}`};
   const plannerExportCssMagnetBase=plannerExportCss;plannerExportCss=function(){return plannerExportCssMagnetBase()+`.magnet-guide-line{stroke:#e79518;stroke-width:8;stroke-linecap:round;vector-effect:non-scaling-stroke}.magnet-guide-dot{fill:#fff4cc;stroke:#db8711;stroke-width:5;vector-effect:non-scaling-stroke}.magnet-guide-pill{fill:#fff4cc;stroke:#db8711;stroke-width:1.5;vector-effect:non-scaling-stroke}.magnet-guide-text{fill:#8a5400;font-size:72px;font-weight:900;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:#fff;stroke-width:14}`};
@@ -3643,13 +3642,30 @@ function renderCatalog(){
   $('#plannerAttachBtn').onclick=attachSelected;$('#plannerRotateBtn').onclick=rotateSelected;$('#plannerPropRotateBtn').onclick=rotateSelected;$('#plannerDuplicateBtn').onclick=duplicateSelected;$('#plannerPropDuplicateBtn').onclick=duplicateSelected;$('#plannerDeleteBtn').onclick=deleteSelected;$('#plannerPropDeleteBtn').onclick=deleteSelected;
   $('#planner3dBtn').onclick=openPlanner3d;$('#planner3dClose').onclick=closePlanner3d;$('#planner3dModal').addEventListener('click',e=>{if(e.target===$('#planner3dModal'))closePlanner3d()});$('#planner3dRotateLeft').onclick=()=>adjustPlanner3d(-12,0,1);$('#planner3dRotateRight').onclick=()=>adjustPlanner3d(12,0,1);$('#planner3dTiltDown').onclick=()=>adjustPlanner3d(0,-6,1);$('#planner3dTiltUp').onclick=()=>adjustPlanner3d(0,6,1);$('#planner3dZoomOut').onclick=()=>adjustPlanner3d(0,0,.86);$('#planner3dZoomIn').onclick=()=>adjustPlanner3d(0,0,1.16);$('#planner3dFillArchive').onclick=togglePlanner3dFolders;$('#planner3dSaveQuoteView').onclick=savePlanner3dQuoteView;$('#planner3dReset').onclick=resetPlanner3d;
   [$('#planner3dCanvas'),$('#planner3dSvg')].filter(Boolean).forEach(surface=>{
-    surface.addEventListener('pointerdown',e=>{if(e.button!==0)return;planner3dDrag={start:[e.clientX,e.clientY],azimuth:planner3dView.azimuth,elevation:planner3dView.elevation,surface};surface.classList.add('dragging');try{surface.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault()});
+    surface.addEventListener('contextmenu',e=>e.preventDefault());
+    surface.addEventListener('pointerdown',e=>{
+      if(planner3dDrag||![0,2].includes(e.button))return;
+      const rect=surface.getBoundingClientRect(),matrix=surface.id==='planner3dSvg'?surface.getScreenCTM():null,panScale=matrix?1/(Math.hypot(matrix.a,matrix.b)*760):1/Math.max(1,rect.height);
+      planner3dDrag={mode:e.button===2?'pan':'rotate',pointerId:e.pointerId,start:[e.clientX,e.clientY],azimuth:planner3dView.azimuth,elevation:planner3dView.elevation,panX:planner3dView.panX,panY:planner3dView.panY,panScale,surface};
+      surface.classList.add('dragging');try{surface.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault();
+    });
+    surface.addEventListener('lostpointercapture',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
     surface.addEventListener('wheel',e=>{e.preventDefault();const unit=e.deltaMode===1?16:e.deltaMode===2?240:1,delta=Math.max(-140,Math.min(140,e.deltaY*unit)),factor=Math.exp(-delta*.0017);planner3dView.zoom=Math.max(.62,Math.min(2.45,planner3dView.zoom*factor));planner3dRequestRender(true)},{passive:false});
     surface.addEventListener('dblclick',resetPlanner3d)
   });
-  window.addEventListener('pointermove',e=>{if(!planner3dDrag)return;planner3dView.azimuth=((planner3dDrag.azimuth+(e.clientX-planner3dDrag.start[0])*.28+540)%360)-180;planner3dView.elevation=Math.max(10,Math.min(70,planner3dDrag.elevation-(e.clientY-planner3dDrag.start[1])*.2));planner3dRequestRender(true);e.preventDefault()},{passive:false});
-  window.addEventListener('pointerup',()=>{if(!planner3dDrag)return;planner3dDrag.surface?.classList.remove('dragging');planner3dDrag=null;planner3dEndInteraction()});
-  window.addEventListener('pointercancel',()=>{if(!planner3dDrag)return;planner3dDrag.surface?.classList.remove('dragging');planner3dDrag=null;planner3dEndInteraction()});
+  function finishPlanner3dDrag(){if(!planner3dDrag)return;planner3dDrag.surface?.classList.remove('dragging');planner3dDrag=null;planner3dEndInteraction()}
+  window.addEventListener('pointermove',e=>{
+    const d=planner3dDrag;if(!d||d.pointerId!==e.pointerId)return;
+    const dx=e.clientX-d.start[0],dy=e.clientY-d.start[1];
+    if(d.mode==='pan'){
+      planner3dView.panX=Math.max(-6,Math.min(6,d.panX+dx*d.panScale));planner3dView.panY=Math.max(-6,Math.min(6,d.panY+dy*d.panScale));
+    }else{
+      planner3dView.azimuth=((d.azimuth+dx*.28+540)%360)-180;planner3dView.elevation=Math.max(10,Math.min(70,d.elevation-dy*.2));
+    }
+    planner3dRequestRender(true);e.preventDefault();
+  },{passive:false});
+  window.addEventListener('pointerup',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
+  window.addEventListener('pointercancel',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
   function setPlannerRailAisle(value,userSet=true){const raw=Math.round(Number(value));if(!Number.isFinite(raw)){const input=$('#plannerRailAisle');if(input)input.value=String(plannerRailAisleMm());toast('Укажите ход рельса числом от 750 до 5000 мм','bad');return}const next=Math.max(FOUNDATION_MIN_AISLE_MM,Math.min(5000,raw));if(Number(pstate().railAisleMm)===next&&pstate().railAisleUserSet===(userSet===true)){renderPlanner();return}pushPlannerHistory();pstate().railAisleMm=next;pstate().railAisleUserSet=userSet===true;renderPlanner();renderRails();renderAside();persist();toast(userSet?`Рабочий ход рельса задан: ${next} мм`:'Рабочий ход сброшен: принято 1000 мм','good')}
   $('#plannerRailAisle').onchange=e=>setPlannerRailAisle(e.target.value,true);$('#plannerRailAisle').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.currentTarget.blur()}};$('#plannerRailAisleReset').onclick=()=>setPlannerRailAisle(FOUNDATION_PREFERRED_AISLE_MM,false);
   $('#plannerZoomInBtn').onclick=()=>{pstate().zoom=Math.min(4,pstate().zoom*1.2);renderPlanner()};$('#plannerZoomOutBtn').onclick=()=>{pstate().zoom=Math.max(.45,Math.min(4,pstate().zoom/1.2));renderPlanner()};$('#plannerZoomFitBtn').onclick=()=>{pstate().zoom=1;pstate().panX=0;pstate().panY=0;renderPlanner();persist()};$('#plannerClearanceToggle').onclick=()=>{if(!pstate().room.created){toast('Сначала создайте помещение','bad');return}pstate().showClearances=!pstate().showClearances;renderPlanner();persist();toast(pstate().showClearances?'Показаны размеры до стен, колонн и соседних стеллажей':'Размеры до препятствий скрыты')};$('#plannerSnapToggle').onchange=e=>{pstate().snap=e.target.checked;persist()};$('#plannerMagnetToggle').onchange=e=>{pstate().magnet=e.target.checked;magnetGuide=null;renderPlanner();persist();toast(e.target.checked?'Магнит включён: стеллажи прилипают с зазором 0 мм':'Магнит выключен')};$('#plannerUndoBtn').onclick=undoPlanner;$('#plannerRedoBtn').onclick=redoPlanner;
