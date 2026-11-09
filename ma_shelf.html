@@ -1507,6 +1507,37 @@ html body .planner-status{flex-wrap:nowrap!important;overflow-x:auto;overflow-y:
 html body .planner-status::-webkit-scrollbar{display:none}
 html body .planner-status>span{flex:0 0 auto}
 </style>
+<style id="ui-polish-v1">
+/* 1. Header: action buttons never shrink below their content; labels collapse to icons on narrower screens. */
+html body .header-actions{flex:0 0 auto}
+html body .header-action.project-action{flex:0 0 auto}
+@media(max-width:1599px){html body .header-action.project-action b{display:none}html body .header-action.project-action{padding:6px;min-width:46px;justify-content:center}}
+/* 2. Phones: the header fits the screen (no sideways page scroll, "Очистить" is reachable). */
+@media(max-width:520px){
+  html body .header-inner{gap:8px;padding:8px 10px;flex-wrap:nowrap}
+  html body .brand{min-width:0;flex:1 1 auto;gap:8px}
+  html body .brand-mark{width:30px;height:30px;flex:0 0 30px}
+  html body .brand-title{font-size:12px;line-height:1.15;overflow-wrap:anywhere}
+  html body .header-actions{gap:4px}
+  html body .header-action.project-action{min-width:40px;width:40px;min-height:40px;height:40px;padding:3px;border-radius:12px}
+  html body .header-action.project-action .action-icon{width:30px;height:30px;flex-basis:30px}
+}
+/* 3. Section role cards: long captions wrap instead of being cut by the card edge. */
+html body .section-role-head label{white-space:normal;text-align:center;line-height:1.2;overflow-wrap:break-word;font-size:12px}
+/* 4. Touch screens: comfortable tap targets, and no auto-zoom of inputs on iOS. */
+@media(pointer:coarse){
+  html body .btn,html body .step-link,html body .tab-btn,html body .chip{min-height:44px}
+  html body .input,html body .select,html body select,html body input:not([type=checkbox]):not([type=radio]),html body textarea{min-height:44px}
+}
+@media(max-width:820px){html body .input,html body .select,html body select,html body input:not([type=checkbox]):not([type=radio]),html body textarea{font-size:16px}}
+/* 5. Keyboard focus is always visible. */
+html body :is(button,a,input,select,textarea,[tabindex]):focus-visible{outline:2px solid #2455d6;outline-offset:2px}
+/* 6. Planner: slightly larger service text. */
+html body .planner-status>span{font-size:11.5px}
+html body .planner-issue{font-size:11.5px}
+/* 7. Respect the system "reduce motion" setting. */
+@media(prefers-reduced-motion:reduce){html body *,html body *::before,html body *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
 <header class="app-header">
@@ -2033,7 +2064,7 @@ function toast(text,type=''){const wrap=$('#toastWrap');const el=document.create
 function renderProjectCounter(count){const el=$('#projectCounter');if(!el)return;const value=Math.max(0,clampInt(count));el.textContent=String(value);el.setAttribute('aria-label',`Создано проектов на сервере: ${value}`)}
 async function refreshProjectCounter(){try{const response=await fetch(PROJECT_COUNTER_API,{cache:'no-store'}),data=await response.json();if(data.ok)renderProjectCounter(data.count)}catch(e){console.warn('Счетчик проектов недоступен',e)}}
 function ensureProjectCounterId(){if(!state.project.counterId)state.project.counterId=(crypto.randomUUID?.()||`p-${Date.now()}-${Math.random().toString(36).slice(2)}`)}
-async function registerCreatedProject(){ensureProjectCounterId();try{const response=await fetch(PROJECT_COUNTER_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectId:state.project.counterId})}),data=await response.json();if(!data.ok)throw new Error(data.error||'counter error');state.project.counterRegistered=true;renderProjectCounter(data.count)}catch(e){console.warn('Счетчик проектов недоступен',e)}}
+async function registerCreatedProject(){ensureProjectCounterId();const ctrl=typeof AbortController==='function'?new AbortController():null,timer=ctrl?setTimeout(()=>ctrl.abort(),4000):0;try{const response=await fetch(PROJECT_COUNTER_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectId:state.project.counterId}),signal:ctrl?ctrl.signal:undefined}),data=await response.json();if(!data.ok)throw new Error(data.error||'counter error');state.project.counterRegistered=true;renderProjectCounter(data.count)}catch(e){console.warn('Счетчик проектов недоступен',e)}finally{clearTimeout(timer)}}
 function persist(){enforceAutomaticAccessoryPolicy();clearTimeout(saveTimer)}
 function directKey(depth,id){return DIRECT_KEY_BY_DEPTH_ID[Number(depth)]?.[id]||null}
 function finalizeMigratedState(s,{source='storage',legacy=false}={}){
@@ -3730,6 +3761,18 @@ function renderCatalog(){
   if(commercial)commercial.onclick=()=>countAndRun(()=>window.print());
   const printed=document.getElementById('asidePrintBtn');
   if(printed)printed.onclick=()=>countAndRun(()=>{gotoStep(6);if(state.currentStep===6)setTimeout(()=>window.print(),150)});
+})();
+</script>
+<script id="ui-polish-v1-js">
+/* Keep the active step visible in the horizontally scrollable step strip (phones and tablets). */
+(function(){
+  const nav=document.getElementById('stepNav');if(!nav||typeof MutationObserver==='undefined')return;
+  let queued=0;
+  const reveal=()=>{queued=0;if(nav.scrollWidth<=nav.clientWidth+2)return;const a=nav.querySelector('.step-link.active');if(!a)return;
+    const left=a.offsetLeft-(nav.clientWidth-a.offsetWidth)/2;if(Math.abs(nav.scrollLeft-left)>4)nav.scrollTo({left:Math.max(0,left),behavior:'smooth'})};
+  const schedule=()=>{if(!queued)queued=requestAnimationFrame(reveal)};
+  new MutationObserver(schedule).observe(nav,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',schedule);schedule();
 })();
 </script>
 </body>
