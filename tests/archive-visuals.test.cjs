@@ -20,7 +20,7 @@ for(const type of ['mobile','stationary_single','stationary_double'])test(type+'
    assert(b.y-b.sy/2>=-m.depth/2-.01&&b.y+b.sy/2<=m.depth/2+.01,b.kind+' exceeds depth');
    assert(b.z-b.sz/2>=0&&b.z+b.sz/2<=heightMm+.01,b.kind+' exceeds height');
   }
-  const top=archiveTopMarkup(o);assert(!/NaN|undefined|Infinity/.test(top));assert.equal(top.includes('rack-handwheel-tech'),type==='mobile');
+  const top=archiveTopMarkup(o);assert(!/NaN|undefined|Infinity/.test(top));assert.equal(top.includes('rack-wheel-rim'),type==='mobile');
  }
 });
 test('main and additional bays share their connecting end frame and have one front cover',()=>{

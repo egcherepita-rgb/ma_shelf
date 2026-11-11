@@ -1710,6 +1710,13 @@ html:root body .planner-library .planner-catalog-bottom{gap:6px!important;flex-d
 .planner-quick-props .qp-icons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .planner-quick-props .qp-icons .qp-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px}
 .planner-quick-props .qp-icons .qp-chip.active{background:#eaf1ff;color:#163f9e;border-color:#2357d6;box-shadow:inset 0 0 0 1px #2357d6}
+.planner-quick-props .qp-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.planner-quick-props .qp-field{display:grid;gap:4px;font-size:11px;font-weight:700;color:#53627a}
+.planner-quick-props .qp-input{display:flex;align-items:center;border:1px solid #cfd9e7;border-radius:9px;background:#fff;padding:0 8px;height:36px}
+.planner-quick-props .qp-input:focus-within{border-color:#2357d6;box-shadow:0 0 0 3px rgba(35,87,214,.15)}
+.planner-quick-props .qp-input input{border:0;outline:0;background:transparent;width:100%;min-width:0;font:600 14px/1 inherit;font-family:inherit;color:#1d2a3f;padding:0}
+.planner-quick-props .qp-input em{font-style:normal;font-size:11px;color:#8391a5;margin-left:4px}
+#plannerProps:has(#plannerQuickProps:not(.hidden)) .field:has(#plannerPropWidth),#plannerProps:has(#plannerQuickProps:not(.hidden)) .field:has(#plannerPropDepth),#plannerProps:has(#plannerQuickProps:not(.hidden)) .field:has(#plannerPropOpeningHeight),#plannerProps:has(#plannerQuickProps:not(.hidden)) #plannerWindowSillField{display:none!important}
 #plannerProps:has(#plannerQuickProps:not(.hidden)) #plannerDoorHingeField,#plannerProps:has(#plannerQuickProps:not(.hidden)) #plannerDoorSwingField{display:none!important}
 </style>
 <style id="ui-planner-topview">
@@ -1722,6 +1729,26 @@ html:root body .planner-library .planner-section-chip .planner-section-index{wid
 html:root body .planner-library .planner-section-chip>*{align-self:center!important;grid-area:auto!important;margin:0!important;line-height:1!important}
 html:root body .planner-library .planner-section-chip .planner-section-width{font-size:11.5px!important}
 html:root body .planner-library .planner-section-chip button{width:18px!important;height:18px!important;min-width:18px;border-radius:50%!important;padding:0!important;font-size:12px!important;line-height:1;display:grid;place-items:center;margin:0!important;position:static!important}
+</style>
+<style id="ui-planner-rack-plan">
+.planner-svg .rack-body{fill:#f7f9fc;stroke:#2a3647;stroke-width:1.6;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-section-shell{fill:#f3f5f8;stroke:#55606e;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-section-shell.main-rack-section{fill:#e9f0fd}
+.planner-svg .rack-sheet-fold{fill:none;stroke:#c9d0d9;stroke-width:.8;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-center-line{stroke:#8f99a6;stroke-width:.9;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-upright{fill:#5d6876;stroke:none;pointer-events:none}
+.planner-svg .rack-rear-panel-tech{fill:#7d8794;stroke:#2a3647;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-drive-panel{fill:#aeb7c2;stroke:#2a3647;stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-drive-accent{stroke:#8590a0;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-wheel-shaft{fill:#6b7582;pointer-events:none}
+.planner-svg .rack-wheel-rim{fill:#dfe4ea;stroke:#2a3647;stroke-width:1.5;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-wheel-rim-line{stroke:#9aa4b1;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}
+.planner-svg .rack-wheel-hub{fill:#4a5462;pointer-events:none}
+.planner-svg .rack-wheel-grip{fill:#2f3742;pointer-events:none}
+.planner-svg .plan-object.selected .rack-body{stroke:#2357d6;stroke-width:2.6}
+.planner-svg .plan-object.selected .rack-section-shell{stroke:#5c7fd6;stroke-width:1.1}
+.planner-svg .plan-object.invalid .rack-body{stroke:#c5363f;stroke-width:3}
+.planner-svg .plan-object.invalid .rack-section-shell{stroke:#c5363f;stroke-width:1.2}
 </style>
 </head>
 <body>
@@ -3052,7 +3079,7 @@ function renderCatalog(){
   // extension lines overshooting the dimension line, text above the line, chains closest to the contour,
   // overall dimension on the outer level. Sizes are kept constant on screen at any zoom.
   function cadMetrics(){const u=draftVisualMetrics(plannerBounds()).unit;return{u,base:u*30,step:u*25,serif:u*4.4,over:u*5,gap:u*2,font:u*12.5,textOff:u*3.2}}
-  function cadText(x,y,angle,label,M,cls,title){return `<text class="cad-d-text ${cls||''}" x="${x}" y="${y}" font-size="${M.font}" stroke-width="${M.u*3}" transform="rotate(${angle} ${x} ${y})">${esc(label)}${title?`<title>${esc(title)}</title>`:''}</text>`}
+  function cadText(x,y,angle,label,M,cls,title){return `<text class="cad-d-text ${cls||''}" x="${x}" y="${y}" font-size="${(cls||'').includes('cad-rack-text')?M.font*.8:M.font}" stroke-width="${M.u*3}" transform="rotate(${angle} ${x} ${y})">${esc(label)}${title?`<title>${esc(title)}</title>`:''}</text>`}
   // Chain along direction u from p0, measured points at distances ts (sorted), dimension line at offset off along n.
   // extFrom: distance along n where extension lines start (0 = right at the measured point).
   function cadChain(p0,u,n,ts,off,M,opts={}){
@@ -3307,31 +3334,30 @@ function renderCatalog(){
   function quickChip(label,attrs,active,extra=''){return `<button type="button" class="qp-chip ${active?'active':''}" ${attrs} aria-pressed="${active?'true':'false'}">${extra}${label}</button>`}
   function renderQuickProps(){
     const box=$('#plannerQuickProps');if(!box)return;const o=selected();
-    if(!o||['archive','group'].includes(o.kind)){box.innerHTML='';box.classList.add('hidden');return}
-    box.classList.remove('hidden');let html='';const W=Math.round(Number(o.width)||0),D=Math.round(Number(o.depth)||0),H=Math.round(Number(o.heightMm)||0);
-    const sizeRow=(title,prop,values,current,unit='')=>`<div class="qp-group"><span class="qp-title">${title}</span><div class="qp-chips">${values.map(v=>quickChip(String(v)+unit,`data-qp-prop="${prop}" data-qp-value="${v}"`,Math.round(current)===v)).join('')}</div></div>`;
+    if(!o||['archive','group'].includes(o.kind)){box.innerHTML='';box.classList.add('hidden');box.dataset.objectId='';return}
+    if(box.dataset.objectId===o.id&&box.contains(document.activeElement)&&document.activeElement.tagName==='INPUT')return;
+    box.classList.remove('hidden');box.dataset.objectId=o.id;let html='';const W=Math.round(Number(o.width)||0),D=Math.round(Number(o.depth)||0),H=Math.round(Number(o.heightMm)||0);
+    const field=(label,prop,value,min,max)=>`<label class="qp-field"><span>${label}</span><span class="qp-input"><input type="number" inputmode="numeric" data-qp-input="${prop}" value="${value}" min="${min}" max="${max}" step="10"><em>мм</em></span></label>`;
+    const fields=list=>`<div class="qp-fields">${list.join('')}</div>`;
     if(o.kind==='door'){
       const swing=o.swingDirection==='out'?'out':'in',hinge=o.hingeSide==='right'?'right':'left';
       html+=`<div class="qp-group"><span class="qp-title">Открывание</span><div class="qp-chips qp-icons">${quickChip('Внутрь','data-qp-prop="swingDirection" data-qp-value="in"',swing==='in',quickDoorIcon('in',hinge))}${quickChip('Наружу','data-qp-prop="swingDirection" data-qp-value="out"',swing==='out',quickDoorIcon('out',hinge))}</div></div>`;
       html+=`<div class="qp-group"><span class="qp-title">Петли</span><div class="qp-chips qp-icons">${quickChip('Левые','data-qp-prop="hingeSide" data-qp-value="left"',hinge==='left',quickDoorIcon(swing,'left'))}${quickChip('Правые','data-qp-prop="hingeSide" data-qp-value="right"',hinge==='right',quickDoorIcon(swing,'right'))}</div></div>`;
-      html+=sizeRow('Ширина проёма, мм','width',[700,800,900,1000,1200,1500],W);
-      html+=sizeRow('Высота проёма, мм','openingHeight',[2000,2100,2300,2400],H);
+      html+=fields([field('Ширина проёма','width',W,400,3000),field('Высота проёма','openingHeight',H,300,4000)]);
     }else if(o.kind==='window'){
-      html+=sizeRow('Ширина окна, мм','width',[600,900,1200,1500,1800,2100],W);
-      html+=sizeRow('Высота окна, мм','openingHeight',[900,1200,1400,1500,1800],H);
-      html+=sizeRow('Подоконник, мм','sillMm',[600,800,900,1000],Math.round(Number(o.sillMm)||0));
+      html+=fields([field('Ширина окна','width',W,400,6000),field('Высота окна','openingHeight',H,300,4000),field('Подоконник','sillMm',Math.round(Number(o.sillMm)||0),0,3000)]);
     }else if(o.kind==='column'){
-      const sq=[300,400,500,600,800];html+=`<div class="qp-group"><span class="qp-title">Сечение колонны, мм</span><div class="qp-chips">${sq.map(v=>quickChip(`${v}×${v}`,`data-qp-square="${v}"`,W===v&&D===v)).join('')}</div></div>`;
+      html+=fields([field('Ширина','width',W,50,5000),field('Глубина','depth',D,50,5000)]);
     }else if(o.kind==='aisle'){
-      html+=sizeRow('Ширина прохода, мм','depth',[750,1000,1200,1500,2000],D);
-      html+=sizeRow('Длина, мм','width',[2000,3000,4000,5000,6000],W);
+      html+=fields([field('Ширина прохода','depth',D,300,10000),field('Длина','width',W,300,50000)]);
     }else if(o.kind==='zone'){
-      html+=sizeRow('Ширина, мм','width',[500,1000,1500,2000,3000],W);
-      html+=sizeRow('Глубина, мм','depth',[500,800,1000,1500,2000],D);
+      html+=fields([field('Ширина','width',W,50,50000),field('Глубина','depth',D,50,50000)]);
     }
     if(isWallOpening(o)){const poly=roomPoints();if(poly.length>2)html+=`<div class="qp-group"><span class="qp-title">Стена</span><div class="qp-chips">${poly.map((_,i)=>quickChip(String(i+1),`data-qp-wall="${i}" title="Перенести на стену ${i+1}"`,Number(o.wallIndex)===i)).join('')}</div></div>`}
     box.innerHTML=html;
   }
+  document.addEventListener('change',e=>{const input=e.target.closest('#plannerQuickProps [data-qp-input]');if(!input||!selected())return;const v=Math.round(Number(input.value));if(!Number.isFinite(v)||v<=0){toast('Введите размер числом в миллиметрах','bad');renderQuickProps();return}const box=$('#plannerQuickProps');input.blur();setSelectedProperty(input.dataset.qpInput,Math.max(Number(input.min)||0,Math.min(Number(input.max)||1e6,v)));if(box)box.dataset.objectId='';renderQuickProps()});
+  document.addEventListener('keydown',e=>{const input=e.target.closest?.('#plannerQuickProps [data-qp-input]');if(input&&e.key==='Enter'){e.preventDefault();input.blur()}},true);
   document.addEventListener('click',e=>{
     const chip=e.target.closest('#plannerQuickProps .qp-chip');if(!chip)return;const o=selected();if(!o)return;
     if(chip.dataset.qpWall!==undefined){const i=Number(chip.dataset.qpWall);pushPlannerHistory();const ok=syncWallOpeningFromAttachment(o,null,i);if(!ok){plannerUndoStack.pop();toast('На этой стене недостаточно места для проёма','bad')}renderPlanner();persist();return}
@@ -3457,21 +3483,26 @@ function renderCatalog(){
     const wheel=type==='mobile'?{x:front-45,z:height*.45,radius:Math.min(180,depth*.27,height*.105),projection:parts.wheel,front,spokes:3}:null;
     return{widths,type,width,depth,height,shelves,start,end,spans,levels,boxes,wheel,selectedDepth};
   }
+  // Plan symbol of a rack row seen from above: drive panel with handwheel, end frames,
+  // double-sided shelves per section (main section tinted), rear frame.
   function archiveTopMarkup(o){
-    const m=archiveVisualModel(o);let markup='';
+    const m=archiveVisualModel(o),D=m.depth,top=-D/2,parts=rackWidthAllowances(m.type),front=m.start-parts.frontPanel,rearX=m.end;let out='';
+    out+=`<rect class="rack-body" x="${front}" y="${top}" width="${rearX+parts.rear-front}" height="${D}"/>`;
     let x=m.start;
     m.widths.forEach((w,i)=>{m.spans.forEach(([a,b])=>{
-      markup+=`<rect class="rack-section-shell" data-section="${i}" x="${x+14}" y="${a+3}" width="${w-28}" height="${b-a-6}"/><rect class="rack-sheet-fold" x="${x+17}" y="${a+6}" width="${w-34}" height="${b-a-12}"/>`;
+      out+=`<rect class="rack-section-shell${i===0?' main-rack-section':''}" data-section="${i}" x="${x+12}" y="${a+4}" width="${w-24}" height="${b-a-8}"/><rect class="rack-sheet-fold" x="${x+30}" y="${a+18}" width="${Math.max(10,w-60)}" height="${Math.max(6,b-a-36)}"/>`;
     });x+=w});
-    m.boxes.filter(b=>['front-return','end-frame','post'].includes(b.kind)&&b.z+b.sz/2>=m.height-3).forEach(b=>{
-      markup+=`<rect class="${b.kind==='front-return'?'rack-front-panel-tech':'rack-rear-panel-tech'}" x="${b.x-b.sx/2}" y="${b.y-b.sy/2}" width="${b.sx}" height="${b.sy}"/>`;
-    });
-    const panel=m.boxes.find(b=>b.kind==='front-panel');
-    markup+=`<rect class="rack-front-panel-tech" x="${panel.x-panel.sx/2}" y="${-m.depth/2}" width="${panel.sx}" height="${m.depth}"/>`;
-    if(m.wheel){const w=m.wheel;
-      markup+=`<line class="rack-handwheel-stem" x1="${w.x-15}" y1="0" x2="${w.front}" y2="0"/><ellipse class="rack-handwheel-tech" cx="${w.x}" cy="0" rx="14" ry="${w.radius}"/><ellipse class="rack-handwheel-highlight" cx="${w.x-2}" cy="0" rx="7" ry="${w.radius-12}"/><rect class="rack-wheel-grip" x="${w.front-w.projection+8}" y="${Math.cos(-.62)*w.radius-16}" width="82" height="32" rx="10"/>`;
+    if(m.spans.length>1){const g=(m.spans[0][1]+m.spans[1][0])/2;out+=`<line class="rack-center-line" x1="${m.start}" y1="${g}" x2="${m.end}" y2="${g}"/>`}
+    let bx=m.start;[m.start,...m.widths.map(w=>(bx+=w))].forEach(px=>{out+=`<rect class="rack-upright" x="${px-11}" y="${top}" width="22" height="${D}"/>`});
+    out+=`<rect class="rack-rear-panel-tech" x="${rearX}" y="${top}" width="${parts.rear}" height="${D}"/>`;
+    out+=`<rect class="rack-drive-panel" x="${front}" y="${top}" width="${parts.frontPanel}" height="${D}"/><line class="rack-drive-accent" x1="${front+parts.frontPanel*.5}" y1="${top+30}" x2="${front+parts.frontPanel*.5}" y2="${-top-30}"/>`;
+    if(m.wheel){const w=m.wheel,R=Math.min(w.radius*1.08,D/2-20);
+      out+=`<rect class="rack-wheel-shaft" x="${w.x}" y="-11" width="${front-w.x}" height="22" rx="4"/>`;
+      out+=`<rect class="rack-wheel-rim" x="${w.x-19}" y="${-R}" width="38" height="${R*2}" rx="19"/><line class="rack-wheel-rim-line" x1="${w.x}" y1="${-R+14}" x2="${w.x}" y2="${R-14}"/>`;
+      out+=`<rect class="rack-wheel-hub" x="${w.x-26}" y="-30" width="52" height="60" rx="12"/>`;
+      out+=`<rect class="rack-wheel-grip" x="${w.x-19-70}" y="${R*.62-14}" width="70" height="28" rx="14"/>`;
     }
-    return markup;
+    return out;
   }
   function planner3dRackMarkup(o,camera,invalid,options={}){
     const m=archiveVisualModel(o),local=(x,y,z)=>planner3dLocalPoint(o,x,y,z),faces=[],coverFaces=[],isInvalid=invalid.has(o._sourceId||o.id),suffix=isInvalid?' invalid':'',attrs=`data-planner3d-object="${esc(o._sourceId||o.id)}"`;
@@ -3936,6 +3967,7 @@ function renderCatalog(){
   const plannerExportCssDeclutterBase=plannerExportCss;plannerExportCss=function(){return plannerExportCssDeclutterBase()+`.dim-text,.clearance-text,.rack-dim-text{font-family:Arial,"Helvetica Neue",sans-serif;font-variant-numeric:tabular-nums;font-stretch:condensed;letter-spacing:-2px;paint-order:normal;stroke:none}.dim-text{fill:#b91f2c;font-size:126px;font-weight:900}.room-dim-pill,.clearance-pill,.rack-dim-pill{display:none}.clearance-text{font-size:112px;font-weight:900}.clearance-kind-text{display:none}.rack-dim-text{fill:#173f7a;font-size:100px;font-weight:900}.rack-dim-depth-note{fill:#0b326d;font-size:94px;font-weight:600;letter-spacing:0}.dim-line,.clearance-line,.rack-dim-line{opacity:.88}`};
   const plannerExportCssCadBase=plannerExportCss;plannerExportCss=function(){return plannerExportCssCadBase()+`*{shape-rendering:geometricPrecision;text-rendering:geometricPrecision}.dim-line{stroke:#18324f!important;stroke-width:1.45!important;opacity:1!important}.dim-ext{stroke:#71839a!important;stroke-width:.9!important;stroke-dasharray:none!important}.dim-text,.clearance-text,.rack-dim-text,.rail-projection-text{font-family:"Arial Narrow",Arial,sans-serif!important;font-variant-numeric:tabular-nums lining-nums!important;font-weight:700!important;letter-spacing:1px!important;paint-order:stroke fill!important;stroke:#fff!important;stroke-linejoin:round!important}.dim-text{fill:#142b45!important;font-size:92px!important;stroke-width:10px!important}.clearance-line{stroke-width:1.35!important;opacity:.96!important}.clearance-ext{stroke-width:.85!important}.clearance-text{font-size:72px!important;stroke-width:8px!important}.rack-dim-line{stroke:#1d4f91!important;stroke-width:1.35!important;opacity:1!important}.rack-dim-ext{stroke:#7890ae!important;stroke-width:.85!important}.rack-dim-text{fill:#153e73!important;font-size:70px!important;stroke-width:8px!important}.rack-dim-depth-note{fill:#102f59!important;font-size:66px!important}.rail-projection-text{font-size:68px!important;stroke-width:8px!important}[id$="plannerDimArrowStart"] path,[id$="plannerDimArrowEnd"] path{fill:#18324f!important}`};
   const plannerExportCssOpeningsBase=plannerExportCss;plannerExportCss=function(){return plannerExportCssOpeningsBase()+`.wall-opening-hit{fill:transparent;stroke:transparent}.wall-opening-gap{stroke:#fff;stroke-width:22;stroke-linecap:square;vector-effect:non-scaling-stroke}.door-swing-fill{fill:#f7b548;fill-opacity:.15;stroke:none}.door-swing-arc{fill:none;stroke:#bd7300;stroke-width:2;stroke-dasharray:9 7;vector-effect:non-scaling-stroke}.door-leaf{stroke:#8b5200;stroke-width:7;stroke-linecap:round;vector-effect:non-scaling-stroke}.door-jamb{stroke:#5f6875;stroke-width:8;vector-effect:non-scaling-stroke}.door-hinge{fill:#fff;stroke:#8b5200;stroke-width:3;vector-effect:non-scaling-stroke}.window-frame{fill:#dff5ff;stroke:#1683a7;stroke-width:5;vector-effect:non-scaling-stroke}.window-glass{stroke:#64b7d1;stroke-width:3;vector-effect:non-scaling-stroke}.opening-label{font-size:60px;fill:#34425a;stroke-width:9}.plan-object.invalid .door-leaf,.plan-object.invalid .window-frame{stroke:#c5363f}`};
+  {const plannerExportCssRack=plannerExportCss;plannerExportCss=function(){return plannerExportCssRack()+`.rack-body{fill:#f7f9fc;stroke:#2a3647;stroke-width:1.6;vector-effect:non-scaling-stroke;pointer-events:none}.rack-section-shell{fill:#f3f5f8;stroke:#55606e;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}.rack-section-shell.main-rack-section{fill:#e9f0fd}.rack-sheet-fold{fill:none;stroke:#c9d0d9;stroke-width:.8;vector-effect:non-scaling-stroke;pointer-events:none}.rack-center-line{stroke:#8f99a6;stroke-width:.9;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}.rack-upright{fill:#5d6876;stroke:none;pointer-events:none}.rack-rear-panel-tech{fill:#7d8794;stroke:#2a3647;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}.rack-drive-panel{fill:#aeb7c2;stroke:#2a3647;stroke-width:1.4;vector-effect:non-scaling-stroke;pointer-events:none}.rack-drive-accent{stroke:#8590a0;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}.rack-wheel-shaft{fill:#6b7582;pointer-events:none}.rack-wheel-rim{fill:#dfe4ea;stroke:#2a3647;stroke-width:1.5;vector-effect:non-scaling-stroke;pointer-events:none}.rack-wheel-rim-line{stroke:#9aa4b1;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}.rack-wheel-hub{fill:#4a5462;pointer-events:none}.rack-wheel-grip{fill:#2f3742;pointer-events:none}.plan-object.selected .rack-body{stroke:#2357d6;stroke-width:2.6}.plan-object.selected .rack-section-shell{stroke:#5c7fd6;stroke-width:1.1}.plan-object.invalid .rack-body{stroke:#c5363f;stroke-width:3}.plan-object.invalid .rack-section-shell{stroke:#c5363f;stroke-width:1.2}`}}
   {const plannerExportCssCad=plannerExportCss;plannerExportCss=function(){return plannerExportCssCad()+`.cad-d-line{stroke:#2a3b55;stroke-width:2;vector-effect:non-scaling-stroke;fill:none}.cad-d-ext{stroke:#6f7f96;stroke-width:1.4;vector-effect:non-scaling-stroke;fill:none}.cad-d-serif{stroke:#2a3b55;stroke-width:3;vector-effect:non-scaling-stroke}.cad-d-text{fill:#1d2a3f;font-family:"Arial Narrow",Arial,Helvetica,sans-serif;font-weight:600;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-linejoin:round}.cad-dim-anchor .cad-d-line,.cad-dim-anchor .cad-d-serif{stroke:#1d5fbf}.cad-dim-anchor .cad-d-ext{stroke:#8eaee0}.cad-anchor-text{fill:#164d9e}.cad-dim-rack .cad-d-line,.cad-dim-rack .cad-d-serif{stroke:#5b3fb0}.cad-dim-rack .cad-d-ext{stroke:#b3a3df}.cad-rack-text{fill:#4a2f9c}`}}
   function plannerSvgMarkup(){
     const svg=$('#plannerSvg').cloneNode(true),b=plannerExportBounds();
