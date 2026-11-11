@@ -1596,6 +1596,17 @@ html body .toast-wrap{top:auto;bottom:96px;left:auto;right:24px;transform:none;j
 .planner-svg .cad-dim-position .cad-d-line,.planner-svg .cad-dim-position .cad-d-serif{stroke:#b06a00}
 .planner-svg .cad-dim-position .cad-d-text{fill:#8a5200}
 </style>
+<style id="ui-planner-3d-controls">
+.planner-3d-stage .planner-3d-axes{position:absolute;right:16px;top:16px;width:92px;height:92px;pointer-events:none;z-index:4}
+.planner-3d-stage .planner-3d-axes .axes-bg{fill:rgba(255,255,255,.82);stroke:#d3dbe7;stroke-width:1.5}
+.planner-3d-stage:not(.webgl-mode) .planner-3d-axes{display:none}
+.planner-3d-stage .planner-3d-canvas{cursor:grab}
+.planner-3d-stage .planner-3d-canvas.dragging{cursor:grabbing}
+.planner-3d-stage .planner-3d-canvas.dragging[data-mode="rotate"]{cursor:move}
+.planner-3d-stage .planner-3d-canvas.dragging[data-mode="lift"]{cursor:ns-resize}
+html body .planner-3d-helper{max-width:calc(100% - 420px);flex-wrap:wrap;row-gap:2px}
+@media (max-width:900px){html body .planner-3d-helper{display:none}}
+</style>
 </head>
 <body>
 <header class="app-header">
@@ -1972,7 +1983,7 @@ html body .toast-wrap{top:auto;bottom:96px;left:auto;right:24px;transform:none;j
     <div class="planner-3d-stage">
       <canvas class="planner-3d-canvas" id="planner3dCanvas" aria-label="Реалистичная трёхмерная визуализация помещения и расставленных стеллажей"></canvas>
       <svg class="planner-3d-svg" id="planner3dSvg" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Трёхмерный вид помещения и расставленных стеллажей"></svg>
-      <div class="planner-3d-helper"><b>ЛКМ — вращение · ПКМ — перемещение</b><span>· колесо — масштаб · двойной щелчок — сброс</span></div>
+      <div class="planner-3d-helper"><b>ЛКМ — сдвиг · ПКМ — вращение · колесо — масштаб к курсору</b><span>· Shift+ЛКМ или Q/E — вверх/вниз · W A S D — движение · двойной щелчок — сброс</span></div><svg class="planner-3d-axes" id="planner3dAxes" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
       <div class="planner-3d-status" id="planner3dStatus"></div>
     </div>
   </div>
@@ -2515,7 +2526,7 @@ init();
   const asideActions=document.querySelector('.aside-actions');if(asideActions&&!$('#asidePlannerBtn'))asideActions.insertAdjacentHTML('beforeend','<button class="btn" id="asidePlannerBtn" type="button">Печать плана помещения</button>');
 
   let drag=null,roomMode='rect',libraryDrag=null,drawHover=null,librarySignature='',magnetGuide=null,editingExistingRoom=false,planner3dDrag=null;
-  const normalizePlanner3dView=value=>{const source=value&&typeof value==='object'?value:{};return{azimuth:Number.isFinite(Number(source.azimuth))?((Number(source.azimuth)+540)%360)-180:-138,elevation:Math.max(10,Math.min(70,Number(source.elevation)||29)),zoom:Math.max(.62,Math.min(2.45,Number(source.zoom)||1)),panX:Number.isFinite(Number(source.panX))?Math.max(-6,Math.min(6,Number(source.panX))):0,panY:Number.isFinite(Number(source.panY))?Math.max(-6,Math.min(6,Number(source.panY))):0}};
+  const normalizePlanner3dView=value=>{const source=value&&typeof value==='object'?value:{},fin=(v,lo,hi)=>Number.isFinite(Number(v))?Math.max(lo,Math.min(hi,Number(v))):0;return{azimuth:Number.isFinite(Number(source.azimuth))?((Number(source.azimuth)+540)%360)-180:-138,elevation:Math.max(2,Math.min(89,Number(source.elevation)||29)),zoom:Math.max(.2,Math.min(12,Number(source.zoom)||1)),tx:fin(source.tx,-80,80),ty:fin(source.ty,-3,12),tz:fin(source.tz,-80,80),panX:Number.isFinite(Number(source.panX))?Math.max(-6,Math.min(6,Number(source.panX))):0,panY:Number.isFinite(Number(source.panY))?Math.max(-6,Math.min(6,Number(source.panY))):0}};
   const planner3dView=normalizePlanner3dView(state.planner?.quote3dView);
   const catalogState={type:'mobile',depth:300,sectionWidths:[1000],height:1996,shelfCount:6,wheelId:'d80'};
   const pstate=()=>state.planner;
@@ -3556,10 +3567,15 @@ function renderCatalog(){
     const engine=planner3dWebgl,poly=context.poly,minX=Math.min(...poly.map(p=>p[0])),maxX=Math.max(...poly.map(p=>p[0])),minY=Math.min(...poly.map(p=>p[1])),maxY=Math.max(...poly.map(p=>p[1])),roomWidth=planner3dMeters(maxX-minX),roomDepth=planner3dMeters(maxY-minY),rackHeight=planner3dMeters(Math.max(0,...context.racks.map(o=>Number(o.heightMm)||1996))),sceneHeight=Math.max(rackHeight,planner3dMeters(context.wallHeight)*.72),diagonal=Math.hypot(roomWidth,roomDepth),elevation=planner3dView.elevation*Math.PI/180,azimuth=planner3dView.azimuth*Math.PI/180,distance=Math.max(diagonal*.98,sceneHeight*3.15,5.2)/Math.max(.56,planner3dView.zoom),targetY=Math.max(.62,Math.min(1.35,sceneHeight*.42));
     engine.camera.aspect=Math.max(.25,width/Math.max(1,height));engine.camera.position.set(Math.cos(azimuth)*Math.cos(elevation)*distance,targetY+Math.sin(elevation)*distance,Math.sin(azimuth)*Math.cos(elevation)*distance);// Pan in the camera plane; move position and target together to preserve the angle.
     const visibleHeight=2*distance*Math.tan(engine.camera.fov*Math.PI/360),offset=new THREE.Vector3(Math.sin(azimuth),0,-Math.cos(azimuth)).multiplyScalar(-planner3dView.panX*visibleHeight).add(new THREE.Vector3(-Math.cos(azimuth)*Math.sin(elevation),Math.cos(elevation),-Math.sin(azimuth)*Math.sin(elevation)).multiplyScalar(planner3dView.panY*visibleHeight));
-    engine.camera.position.add(offset);engine.camera.lookAt(offset.x,targetY+offset.y,offset.z);engine.camera.updateProjectionMatrix();
+    const T=new THREE.Vector3(planner3dView.tx||0,planner3dView.ty||0,planner3dView.tz||0);offset.add(T);engine.camera.position.add(offset);engine.camera.lookAt(offset.x,targetY+offset.y,offset.z);engine.camera.updateProjectionMatrix();engine.camera.updateMatrixWorld();engine.target=new THREE.Vector3(offset.x,targetY+offset.y,offset.z);engine.panOffset=offset.clone().sub(T);engine.visibleHeight=visibleHeight;engine.camDistance=distance;
     const shadowSpan=Math.max(7,diagonal*.78);engine.keyLight.position.set(-shadowSpan*.72,Math.max(8,rackHeight*4.5),-shadowSpan*.62);engine.keyLight.target.position.set(0,0,0);
     const shadowCamera=engine.keyLight.shadow.camera;shadowCamera.left=shadowCamera.bottom=-shadowSpan;shadowCamera.right=shadowCamera.top=shadowSpan;shadowCamera.near=.1;shadowCamera.far=Math.max(24,rackHeight*9);shadowCamera.updateProjectionMatrix();
-    engine.scene.fog.near=Math.max(13,distance*.9);engine.scene.fog.far=Math.max(28,distance*2.15)
+    engine.scene.fog.near=Math.max(13,distance*1.2);engine.scene.fog.far=Math.max(40,distance*3)
+  }
+  function planner3dDrawAxes(camera){
+    const svg=$('#planner3dAxes');if(!svg||!camera)return;const inv=camera.matrixWorldInverse,axes=[['X',[1,0,0],'#d6363f'],['Y',[0,1,0],'#1f9d55'],['Z',[0,0,1],'#2563eb']];
+    const items=axes.map(([n,v,c])=>{const q=new THREE.Vector3(...v).transformDirection(inv);return{n,c,x:q.x*30,y:-q.y*30,z:q.z}}).sort((a,b)=>a.z-b.z);
+    svg.innerHTML='<circle r="46" class="axes-bg"/>'+items.map(a=>`<line x1="0" y1="0" x2="${a.x.toFixed(1)}" y2="${a.y.toFixed(1)}" stroke="${a.c}" stroke-width="4" stroke-linecap="round"/><circle cx="${(a.x*1.22).toFixed(1)}" cy="${(a.y*1.22).toFixed(1)}" r="9" fill="${a.c}"/><text x="${(a.x*1.22).toFixed(1)}" y="${(a.y*1.22+4).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${a.n}</text>`).join('');
   }
   function planner3dRenderWebgl(context){
     const engine=planner3dWebgl;if(!planner3dEnsureWebgl())return false;
@@ -3570,7 +3586,7 @@ function renderCatalog(){
     if(signature!==engine.signature){
       planner3dDisposeRoot();const root=new THREE.Group();engine.root=root;engine.scene.add(root);planner3dBuildRoomWebgl(context,root);context.racks.forEach(o=>planner3dBuildRackWebgl(o,root,context));engine.signature=signature;engine.shadowDirty=true
     }
-    planner3dUpdateWebglCamera(context,width,height);if(engine.shadowDirty)engine.renderer.shadowMap.needsUpdate=true;engine.renderer.render(engine.scene,engine.camera);engine.shadowDirty=false;
+    planner3dUpdateWebglCamera(context,width,height);if(engine.shadowDirty)engine.renderer.shadowMap.needsUpdate=true;engine.renderer.render(engine.scene,engine.camera);engine.shadowDirty=false;planner3dDrawAxes(engine.camera);
     const canvas=$('#planner3dCanvas'),svg=$('#planner3dSvg');canvas?.classList.add('ready');svg?.classList.add('webgl-active');stage?.classList.add('webgl-mode');return true
   }
   function planner3dClearWebgl(){
@@ -3679,10 +3695,10 @@ function renderCatalog(){
     pstate().showCrownFolders3d=!pstate().showCrownFolders3d;renderPlanner3d();persist();
     toast(pstate().showCrownFolders3d?'Архив наполнен папками «Корона»':'Папки «Корона» убраны с полок','good')
   }
-  function adjustPlanner3d(azimuth=0,elevation=0,zoomFactor=1){planner3dView.azimuth=((planner3dView.azimuth+azimuth+540)%360)-180;planner3dView.elevation=Math.max(10,Math.min(70,planner3dView.elevation+elevation));planner3dView.zoom=Math.max(.62,Math.min(2.45,planner3dView.zoom*zoomFactor));renderPlanner3d()}
-  function resetPlanner3d(){planner3dView.azimuth=-138;planner3dView.elevation=29;planner3dView.zoom=1;planner3dView.panX=0;planner3dView.panY=0;renderPlanner3d()}
+  function adjustPlanner3d(azimuth=0,elevation=0,zoomFactor=1){planner3dView.azimuth=((planner3dView.azimuth+azimuth+540)%360)-180;planner3dView.elevation=Math.max(2,Math.min(89,planner3dView.elevation+elevation));planner3dView.zoom=Math.max(.2,Math.min(12,planner3dView.zoom*zoomFactor));renderPlanner3d()}
+  function resetPlanner3d(){planner3dView.azimuth=-138;planner3dView.elevation=29;planner3dView.zoom=1;planner3dView.panX=0;planner3dView.panY=0;planner3dView.tx=0;planner3dView.ty=0;planner3dView.tz=0;renderPlanner3d()}
   function planner3dQuoteView(){return normalizePlanner3dView(pstate().quote3dView)}
-  function planner3dViewMatchesQuote(){const saved=planner3dQuoteView();return Math.abs(saved.azimuth-planner3dView.azimuth)<.05&&Math.abs(saved.elevation-planner3dView.elevation)<.05&&Math.abs(saved.zoom-planner3dView.zoom)<.002&&Math.abs(saved.panX-planner3dView.panX)<.0001&&Math.abs(saved.panY-planner3dView.panY)<.0001}
+  function planner3dViewMatchesQuote(){const saved=planner3dQuoteView();return Math.abs(saved.azimuth-planner3dView.azimuth)<.05&&Math.abs(saved.elevation-planner3dView.elevation)<.05&&Math.abs(saved.zoom-planner3dView.zoom)<.002&&Math.abs(saved.panX-planner3dView.panX)<.0001&&Math.abs(saved.panY-planner3dView.panY)<.0001&&Math.abs((saved.tx||0)-(planner3dView.tx||0))<.001&&Math.abs((saved.ty||0)-(planner3dView.ty||0))<.001&&Math.abs((saved.tz||0)-(planner3dView.tz||0))<.001}
   function syncPlanner3dQuoteButton(){const button=$('#planner3dSaveQuoteView');if(!button)return;const saved=planner3dViewMatchesQuote(),label=button.querySelector('.planner-3d-quote-label');button.classList.toggle('active',saved);button.setAttribute('aria-pressed',saved?'true':'false');button.title=saved?'Этот ракурс используется в коммерческом предложении':'Сохранить текущий угол обзора и масштаб для коммерческого предложения';if(label)label.textContent=saved?'Ракурс сохранён для КП':'Сохранить ракурс для КП'}
   function savePlanner3dQuoteView(){pstate().quote3dView=normalizePlanner3dView(planner3dView);syncPlanner3dQuoteButton();persist();toast('Текущий 3D-ракурс сохранён для коммерческого предложения','good')}
   function withPlanner3dQuoteView(callback){const previous={...planner3dView},modalOpen=$('#planner3dModal')?.classList.contains('open');Object.assign(planner3dView,planner3dQuoteView());try{return callback()}finally{Object.assign(planner3dView,previous);if(modalOpen)renderPlanner3d()}}
@@ -3823,31 +3839,72 @@ function renderCatalog(){
   $('#plannerAddGroupBtn').onclick=addGroup;
   $('#plannerAttachBtn').onclick=attachSelected;$('#plannerRotateBtn').onclick=rotateSelected;$('#plannerPropRotateBtn').onclick=rotateSelected;$('#plannerDuplicateBtn').onclick=duplicateSelected;$('#plannerFillRowsBtn').onclick=fillRowsFromSelected;$('#plannerPropDuplicateBtn').onclick=duplicateSelected;$('#plannerDeleteBtn').onclick=deleteSelected;$('#plannerPropDeleteBtn').onclick=deleteSelected;
   $('#planner3dBtn').onclick=openPlanner3d;$('#planner3dClose').onclick=closePlanner3d;$('#planner3dModal').addEventListener('click',e=>{if(e.target===$('#planner3dModal'))closePlanner3d()});$('#planner3dRotateLeft').onclick=()=>adjustPlanner3d(-12,0,1);$('#planner3dRotateRight').onclick=()=>adjustPlanner3d(12,0,1);$('#planner3dTiltDown').onclick=()=>adjustPlanner3d(0,-6,1);$('#planner3dTiltUp').onclick=()=>adjustPlanner3d(0,6,1);$('#planner3dZoomOut').onclick=()=>adjustPlanner3d(0,0,.86);$('#planner3dZoomIn').onclick=()=>adjustPlanner3d(0,0,1.16);$('#planner3dFillArchive').onclick=togglePlanner3dFolders;$('#planner3dSaveQuoteView').onclick=savePlanner3dQuoteView;$('#planner3dReset').onclick=resetPlanner3d;
+  // 3D camera controls, same scheme as the wardrobe configurator:
+  // LMB — move the view over the floor (X/Z), Shift+LMB or middle button — up/down (Y),
+  // RMB or Alt+LMB — rotate, wheel — zoom to the point under the cursor,
+  // W/S/A/D or arrows — move, Q/E — down/up, +/− — zoom, Shift — faster.
+  function planner3dFoldPan(){const e=planner3dWebgl;if(!e?.panOffset)return;if(Math.abs(planner3dView.panX)<1e-9&&Math.abs(planner3dView.panY)<1e-9)return;planner3dView.tx=(planner3dView.tx||0)+e.panOffset.x;planner3dView.ty=(planner3dView.ty||0)+e.panOffset.y;planner3dView.tz=(planner3dView.tz||0)+e.panOffset.z;planner3dView.panX=0;planner3dView.panY=0;e.panOffset.set(0,0,0)}
+  function planner3dClampTarget(){const v=planner3dView;v.tx=Math.max(-80,Math.min(80,v.tx||0));v.ty=Math.max(-3,Math.min(12,v.ty||0));v.tz=Math.max(-80,Math.min(80,v.tz||0))}
+  function planner3dGroundAxes(){const a=planner3dView.azimuth*Math.PI/180,fwd=[-Math.cos(a),-Math.sin(a)],right=[-fwd[1],fwd[0]];return{fwd,right}}
+  function planner3dMove(dRight,dForward,dUp){planner3dFoldPan();const{fwd,right}=planner3dGroundAxes();planner3dView.tx=(planner3dView.tx||0)+right[0]*dRight+fwd[0]*dForward;planner3dView.tz=(planner3dView.tz||0)+right[1]*dRight+fwd[1]*dForward;planner3dView.ty=(planner3dView.ty||0)+dUp;planner3dClampTarget()}
+  function planner3dWorldPerPixel(surface){const e=planner3dWebgl,h=Math.max(1,surface.getBoundingClientRect().height);return e?.visibleHeight?e.visibleHeight/h:.01}
+  function planner3dZoomAt(factor,clientX,clientY,surface){
+    const e=planner3dWebgl,old=planner3dView.zoom,next=Math.max(.2,Math.min(12,old*factor));if(Math.abs(next-old)<1e-6)return;
+    if(e?.ready&&e.camera&&e.target&&surface.id==='planner3dCanvas'){
+      planner3dFoldPan();const rect=surface.getBoundingClientRect(),ndc=new THREE.Vector2((clientX-rect.left)/rect.width*2-1,-(clientY-rect.top)/rect.height*2+1),ray=new THREE.Raycaster();ray.setFromCamera(ndc,e.camera);
+      const plane=new THREE.Plane(new THREE.Vector3(0,1,0),-e.target.y),hit=new THREE.Vector3();
+      if(ray.ray.intersectPlane(plane,hit)&&hit.distanceTo(e.target)<200){const k=1-old/next;planner3dView.tx=(planner3dView.tx||0)+(hit.x-e.target.x)*k;planner3dView.tz=(planner3dView.tz||0)+(hit.z-e.target.z)*k;planner3dClampTarget()}
+    }
+    planner3dView.zoom=next;
+  }
   [$('#planner3dCanvas'),$('#planner3dSvg')].filter(Boolean).forEach(surface=>{
     surface.addEventListener('contextmenu',e=>e.preventDefault());
     surface.addEventListener('pointerdown',e=>{
-      if(planner3dDrag||![0,2].includes(e.button))return;
+      if(planner3dDrag||![0,1,2].includes(e.button))return;
       const rect=surface.getBoundingClientRect(),matrix=surface.id==='planner3dSvg'?surface.getScreenCTM():null,panScale=matrix?1/(Math.hypot(matrix.a,matrix.b)*760):1/Math.max(1,rect.height);
-      planner3dDrag={mode:e.button===2?'pan':'rotate',pointerId:e.pointerId,start:[e.clientX,e.clientY],azimuth:planner3dView.azimuth,elevation:planner3dView.elevation,panX:planner3dView.panX,panY:planner3dView.panY,panScale,surface};
-      surface.classList.add('dragging');try{surface.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault();
+      const mode=e.button===2||(e.button===0&&e.altKey)?'rotate':(e.button===1||(e.button===0&&e.shiftKey))?'lift':'pan';
+      planner3dFoldPan();
+      planner3dDrag={mode,pointerId:e.pointerId,start:[e.clientX,e.clientY],last:[e.clientX,e.clientY],azimuth:planner3dView.azimuth,elevation:planner3dView.elevation,panX:planner3dView.panX,panY:planner3dView.panY,panScale,surface,svg:!!matrix};
+      surface.classList.add('dragging');surface.dataset.mode=mode;try{surface.setPointerCapture(e.pointerId)}catch(_){ }e.preventDefault();
     });
     surface.addEventListener('lostpointercapture',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
-    surface.addEventListener('wheel',e=>{e.preventDefault();const unit=e.deltaMode===1?16:e.deltaMode===2?240:1,delta=Math.max(-140,Math.min(140,e.deltaY*unit)),factor=Math.exp(-delta*.0017);planner3dView.zoom=Math.max(.62,Math.min(2.45,planner3dView.zoom*factor));planner3dRequestRender(true)},{passive:false});
+    surface.addEventListener('wheel',e=>{e.preventDefault();const unit=e.deltaMode===1?16:e.deltaMode===2?240:1,delta=Math.max(-160,Math.min(160,e.deltaY*unit)),factor=Math.exp(-delta*.0013);planner3dZoomAt(factor,e.clientX,e.clientY,surface);planner3dRequestRender(true)},{passive:false});
     surface.addEventListener('dblclick',resetPlanner3d)
   });
-  function finishPlanner3dDrag(){if(!planner3dDrag)return;planner3dDrag.surface?.classList.remove('dragging');planner3dDrag=null;planner3dEndInteraction()}
+  function finishPlanner3dDrag(){if(!planner3dDrag)return;planner3dDrag.surface?.classList.remove('dragging');if(planner3dDrag.surface)delete planner3dDrag.surface.dataset.mode;planner3dDrag=null;planner3dEndInteraction()}
   window.addEventListener('pointermove',e=>{
     const d=planner3dDrag;if(!d||d.pointerId!==e.pointerId)return;
-    const dx=e.clientX-d.start[0],dy=e.clientY-d.start[1];
-    if(d.mode==='pan'){
+    const dx=e.clientX-d.start[0],dy=e.clientY-d.start[1],sx=e.clientX-d.last[0],sy=e.clientY-d.last[1];d.last=[e.clientX,e.clientY];
+    if(d.mode==='rotate'){
+      planner3dView.azimuth=((d.azimuth+dx*.3+540)%360)-180;planner3dView.elevation=Math.max(2,Math.min(89,d.elevation-dy*.22));
+    }else if(d.svg){
       planner3dView.panX=Math.max(-6,Math.min(6,d.panX+dx*d.panScale));planner3dView.panY=Math.max(-6,Math.min(6,d.panY+dy*d.panScale));
     }else{
-      planner3dView.azimuth=((d.azimuth+dx*.28+540)%360)-180;planner3dView.elevation=Math.max(10,Math.min(70,d.elevation-dy*.2));
+      const k=planner3dWorldPerPixel(d.surface);
+      if(d.mode==='lift')planner3dMove(0,0,sy*k);
+      else{const el=Math.max(.25,Math.sin(planner3dView.elevation*Math.PI/180));planner3dMove(-sx*k,sy*k/el,0)}
     }
     planner3dRequestRender(true);e.preventDefault();
   },{passive:false});
   window.addEventListener('pointerup',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
   window.addEventListener('pointercancel',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
+  window.addEventListener('keydown',e=>{
+    if(!$('#planner3dModal')?.classList.contains('open')||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
+    const k=e.code,fast=e.shiftKey?3:1,step=Math.max(.15,(planner3dWebgl?.camDistance||8)*.04)*fast;let handled=true;
+    if(k==='KeyW'||k==='ArrowUp')planner3dMove(0,step,0);
+    else if(k==='KeyS'||k==='ArrowDown')planner3dMove(0,-step,0);
+    else if(k==='KeyA'||k==='ArrowLeft')planner3dMove(-step,0,0);
+    else if(k==='KeyD'||k==='ArrowRight')planner3dMove(step,0,0);
+    else if(k==='KeyQ'||k==='PageDown')planner3dMove(0,0,-step*.6);
+    else if(k==='KeyE'||k==='PageUp')planner3dMove(0,0,step*.6);
+    else if(k==='Equal'||k==='NumpadAdd')planner3dView.zoom=Math.min(12,planner3dView.zoom*1.15);
+    else if(k==='Minus'||k==='NumpadSubtract')planner3dView.zoom=Math.max(.2,planner3dView.zoom/1.15);
+    else if(k==='KeyZ'){planner3dView.azimuth=((planner3dView.azimuth-8*fast+540)%360)-180}
+    else if(k==='KeyC'){planner3dView.azimuth=((planner3dView.azimuth+8*fast+540)%360)-180}
+    else if(k==='KeyR'){resetPlanner3d();e.preventDefault();e.stopImmediatePropagation();return}
+    else handled=false;
+    if(!handled)return;e.preventDefault();e.stopImmediatePropagation();planner3dRequestRender(true);
+  },true);
   function setPlannerRailAisle(value,userSet=true){const raw=Math.round(Number(value));if(!Number.isFinite(raw)){const input=$('#plannerRailAisle');if(input)input.value=String(plannerRailAisleMm());toast('Укажите ход рельса числом от 750 до 5000 мм','bad');return}const next=Math.max(FOUNDATION_MIN_AISLE_MM,Math.min(5000,raw));if(Number(pstate().railAisleMm)===next&&pstate().railAisleUserSet===(userSet===true)){renderPlanner();return}pushPlannerHistory();pstate().railAisleMm=next;pstate().railAisleUserSet=userSet===true;renderPlanner();renderRails();renderAside();persist();toast(userSet?`Рабочий ход рельса задан: ${next} мм`:'Рабочий ход сброшен: принято 1000 мм','good')}
   $('#plannerRailAisle').onchange=e=>setPlannerRailAisle(e.target.value,true);$('#plannerRailAisle').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.currentTarget.blur()}};$('#plannerRailAisleReset').onclick=()=>setPlannerRailAisle(FOUNDATION_PREFERRED_AISLE_MM,false);
   $('#plannerZoomInBtn').onclick=()=>{pstate().zoom=Math.min(4,pstate().zoom*1.2);renderPlanner()};$('#plannerZoomOutBtn').onclick=()=>{pstate().zoom=Math.max(.45,Math.min(4,pstate().zoom/1.2));renderPlanner()};$('#plannerZoomFitBtn').onclick=()=>{pstate().zoom=1;pstate().panX=0;pstate().panY=0;renderPlanner();persist()};$('#plannerClearanceToggle').onclick=()=>{if(!pstate().room.created){toast('Сначала создайте помещение','bad');return}pstate().showClearances=!pstate().showClearances;renderPlanner();persist();toast(pstate().showClearances?'Показаны привязки стеллажей и колонн к стенам':'Привязки скрыты')};$('#plannerSnapToggle').onchange=e=>{pstate().snap=e.target.checked;persist()};$('#plannerMagnetToggle').onchange=e=>{pstate().magnet=e.target.checked;magnetGuide=null;renderPlanner();persist();toast(e.target.checked?'Магнит включён: стеллажи прилипают с зазором 0 мм':'Магнит выключен')};$('#plannerUndoBtn').onclick=undoPlanner;$('#plannerRedoBtn').onclick=redoPlanner;
