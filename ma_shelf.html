@@ -1919,6 +1919,72 @@ html body #localProjectsBtn .action-icon svg{stroke:currentColor;fill:none;strok
 .planner-align-bar .qp-title{font-size:11px;font-weight:700;color:#53627a}
 @media (max-width:600px){.lp-restore{flex-wrap:wrap}.lp-item{flex-wrap:wrap}}
 </style>
+<style id="ui-design-v2">
+/* ===== Design layer v2: calmer type, one button language, softer surfaces ===== */
+:root{--ink:#18233a;--muted:#5d6b82;--line:#e1e7f0;--primary:#2457d6;--primary2:#1c47b8;--soft:#eef3fd;--radius:16px;--shadow:0 1px 2px rgba(16,30,60,.04),0 8px 24px rgba(16,30,60,.06);
+  --font:"Inter","Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+html body{font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:-.003em}
+html body :is(h1,h2,h3,h4){letter-spacing:-.015em;color:var(--ink)}
+html body :is(h1,h2){font-weight:750}
+html body :is(h3,h4,b,strong){font-weight:700}
+html body :is(button,input,select,textarea){font-family:inherit}
+/* surfaces */
+html body .panel{border-color:var(--line);box-shadow:var(--shadow);border-radius:var(--radius)}
+/* buttons */
+html body .btn{border-radius:10px;font-weight:600;border-color:#d9e1ec;color:var(--ink);box-shadow:0 1px 1px rgba(16,30,60,.03)}
+html body .btn:hover:not(:disabled){background:#f5f8fd;border-color:#c5d2e6}
+html body .btn.primary{background:var(--primary)!important;border-color:var(--primary)!important;color:#fff!important;box-shadow:0 1px 2px rgba(36,87,214,.25),0 6px 16px rgba(36,87,214,.18)}
+html body .btn.primary:hover:not(:disabled){background:var(--primary2)!important;border-color:var(--primary2)!important}
+html body .btn.danger{color:#b4232c;border-color:#efd2d5;background:#fff}
+html body .btn.danger:hover:not(:disabled){background:#fff5f5;border-color:#e4aeb4}
+html body .btn:focus-visible,html body .input:focus-visible,html body .select:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(36,87,214,.22)!important;border-color:var(--primary)!important}
+/* inputs */
+html body :is(.input,.select){border-radius:10px;border-color:#d6dfeb;color:var(--ink);font-weight:500}
+html body :is(.input,.select):hover{border-color:#bfcde2}
+html body label{color:#46546b}
+/* header: one neutral style, coloured icons only */
+html body .app-header{background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom-color:var(--line)}
+html body .header-action{background:#fff!important;border:1px solid var(--line)!important;color:var(--ink)!important;box-shadow:none!important;font-weight:600}
+html body .header-action:hover{background:#f6f9fe!important;border-color:#c9d6ea!important}
+html body .header-action b{font-weight:600}
+html body .header-action .action-icon{border-radius:9px!important;box-shadow:none!important}
+html body .header-action.danger-action,html body .header-action[id*=clear i]{color:#b4232c!important}
+/* step navigation */
+html body .step-link{border-radius:12px}
+html body .step-link.active,html body .step-link[aria-current]{background:var(--soft);box-shadow:inset 0 0 0 1px #c9d8f6}
+/* planner chrome */
+html body .planner-toolbar{background:#fff!important;border-bottom:1px solid var(--line)!important;box-shadow:none!important}
+html:root body .planner-toolbar-one .btn{font-weight:600!important;border-radius:9px!important}
+html body .planner-side{border-color:var(--line)!important;box-shadow:var(--shadow)!important;border-radius:16px!important}
+html body .planner-side-head b{font-weight:700;font-size:16px}
+html body .planner-status>span{border-radius:999px;font-weight:500;background:#f6f8fc;border-color:#e3e9f2}
+html body .planner-status>span b{font-weight:650}
+html body .toast{border-radius:12px;font-weight:500;box-shadow:0 10px 30px rgba(16,30,60,.22)}
+html body .planner-library .planner-lib-step{background:#fff;border-color:var(--line)}
+html body .planner-library .planner-lib-step::before{background:var(--primary)}
+/* plan canvas: lighter grid, crisper walls */
+html body .planner-svg{background:#f7f9fc}
+/* draft HUD */
+.draft-hud{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:26;display:grid;gap:6px;min-width:min(560px,calc(100% - 24px));max-width:calc(100% - 24px);padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.9);border:1px solid #d7e1ef;box-shadow:0 10px 28px rgba(16,30,60,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:13px;color:var(--ink);pointer-events:auto}
+.draft-hud .dh-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.draft-hud .dh-step{font-weight:700;color:#163f9e}
+.draft-hud .dh-ortho{border:1px solid #d3dcea;background:#fff;border-radius:999px;padding:4px 10px;font:600 12px/1 var(--font);cursor:pointer;color:#46546b}
+.draft-hud .dh-ortho.on{background:#e8f0ff;border-color:#9db6ea;color:#163f9e}
+.draft-hud .dh-nums{justify-content:flex-start;gap:14px;color:#46546b}
+.draft-hud .dh-nums b{color:var(--ink);font-variant-numeric:tabular-nums}
+.draft-hud .dh-keys{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:#6a7a90;border-top:1px solid #edf1f7;padding-top:6px}
+.draft-hud kbd{display:inline-block;min-width:18px;padding:1px 5px;border:1px solid #cfd9e7;border-bottom-width:2px;border-radius:5px;background:#fff;font:600 10.5px/1.4 var(--font);color:#2a3b55;text-align:center}
+@media (max-width:700px){.draft-hud .dh-keys{display:none}}
+html body #plannerDrawingTip{display:none!important}
+html body .planner-wall-control{display:none!important}
+html body .planner-draw-copy b{font-size:13px}
+html body :is(.planner-wall-table-box,.planner-underlay-box) summary b{font-size:13px;font-weight:700;color:var(--ink)}
+html body :is(.planner-wall-table-box,.planner-underlay-box) summary{list-style:none;position:relative;padding-right:22px}
+html body :is(.planner-wall-table-box,.planner-underlay-box) summary::-webkit-details-marker{display:none}
+html body :is(.planner-wall-table-box,.planner-underlay-box) summary::after{content:"+";position:absolute;right:2px;top:2px;color:var(--primary);font-weight:700;font-size:16px}
+html body :is(.planner-wall-table-box,.planner-underlay-box)[open] summary::after{content:"−"}
+html body :is(.planner-wall-table-box,.planner-underlay-box){background:#fff;border-color:var(--line)}
+</style>
 </head>
 <body>
 <header class="app-header">
@@ -2140,7 +2206,7 @@ html body #localProjectsBtn .action-icon svg{stroke:currentColor;fill:none;strok
               <div class="field planner-notch-field hidden"><label for="plannerNotchHeight">Глубина выреза, мм</label><input class="input" id="plannerNotchHeight" type="number" min="100" step="50" value="1200"></div>
             </div>
             <div class="planner-draw-panel hidden" id="plannerDrawPanel">
-              <div class="planner-draw-copy"><b>Свободное рисование мышью</b><span>1. Нажмите «Начать рисование». 2. Кликайте по углам помещения на плане. 3. Двойным кликом или кнопкой замкните контур.</span><small>Точные поля справа заполнять не обязательно.</small><label class="planner-ortho-row"><input type="checkbox" id="plannerOrthoToggle" checked> Только горизонтальные и вертикальные стены</label></div>
+              <div class="planner-draw-copy"><b>Свободное рисование</b><span>1. Нажмите «Начать рисование» и щёлкните первый угол. 2. Ведите мышь в сторону стены и <b>наберите длину цифрами</b>, затем Enter — или просто щёлкните. 3. Enter или клик по первой точке замыкает контур. Shift — стена под любым углом, Backspace — убрать угол.</span><small>Точные поля справа заполнять не обязательно.</small><label class="planner-ortho-row"><input type="checkbox" id="plannerOrthoToggle" checked> Только горизонтальные и вертикальные стены</label></div>
               <details class="planner-wall-control">
                 <summary class="planner-wall-control-title"><b>Точное построение по размерам</b><small>Необязательно — раскрывайте, только если известна длина каждой стены.</small></summary>
                 <div class="planner-wall-entry"><div class="field"><label for="plannerWallLength">Длина стены, мм</label><input class="input" id="plannerWallLength" type="number" min="100" step="50" value="1200" aria-describedby="plannerWallLengthHint"><small id="plannerWallLengthHint" class="planner-field-hint">Введите размер и нажмите направление.</small></div><div class="planner-direction-pad" aria-label="Направление стены"><button type="button" data-wall-dir="right" title="Добавить стену вправо">→</button><button type="button" data-wall-dir="down" title="Добавить стену вниз">↓</button><button type="button" data-wall-dir="left" title="Добавить стену влево">←</button><button type="button" data-wall-dir="up" title="Добавить стену вверх">↑</button></div></div>
@@ -3785,7 +3851,34 @@ function renderCatalog(){
   document.addEventListener('pointerdown',e=>{if(aisleView&&e.target.closest('#plannerSvg [data-planner-object]')&&!e.target.closest('#plannerCtxMenu')){aisleView=null;renderPlanner()}},true);
   {const renderPlanner3dAisle=renderPlanner3d;renderPlanner3d=function(...a){return withAisleShift(()=>renderPlanner3dAisle(...a))}}
   function renderCapacityStatus(){const st=$('#plannerStatus');if(!st)return;st.querySelector('.cap-status')?.remove();const c=capacityOf(pstate().objects);if(!c.rows)return;st.insertAdjacentHTML('afterbegin',`<span class="cap-status" title="Погонные метры полок и примерное число архивных папок шириной 75 мм"><b>Вместимость:</b> ${fmtInt(c.meters)} пог. м · ≈ ${fmtInt(c.folders)} папок</span>`)}
-  const renderPlannerFloatBase=renderPlanner;renderPlanner=function(){if(pstate().magnet===false)pstate().magnet=true;renderPlannerFloatBase();{const svg=$('#plannerSvg');if(svg){const rs=rulerSvg();if(rs)svg.insertAdjacentHTML('beforeend',rs)}}syncUnderlayForm();renderCapacityStatus();const fill=$('#plannerFillRowsBtn'),so=selected();if(fill)fill.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());const blockBtn=$('#plannerSelectBlockBtn');if(blockBtn)blockBtn.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());positionPlannerFloatBar();decoratePlannerSelection();renderQuickProps();renderAlignBar();{const sb=$('#plannerSheetPropsBtn');if(sb)sb.classList.toggle('has-sel',!!so)}};
+
+  // ===== Free geometry: typed lengths, Shift = free angle, HUD with keys =====
+  let draftShift=false,draftTyped='';
+  {const orthoBase=orthogonalDraftPoint;orthogonalDraftPoint=function(raw){if(!draftShift)return orthoBase(raw);const o=pstate().ortho;pstate().ortho=!o;try{return orthoBase(raw)}finally{pstate().ortho=o}}}
+  function draftDirection(){const pts=pstate().draftPoints||[],last=pts[pts.length-1];if(!last||!drawHover)return null;const dx=drawHover[0]-last[0],dy=drawHover[1]-last[1],L=Math.hypot(dx,dy);if(L<1)return null;return[dx/L,dy/L]}
+  function draftHud(){
+    const wrap=$('.planner-canvas-wrap');if(!wrap)return;let hud=$('#plannerDraftHud');
+    if(!pstate().drawing){hud?.remove();draftTyped='';return}
+    if(!hud){hud=document.createElement('div');hud.id='plannerDraftHud';hud.className='draft-hud';wrap.append(hud)}
+    const pts=pstate().draftPoints||[],last=pts[pts.length-1],len=last&&drawHover?Math.round(Math.hypot(drawHover[0]-last[0],drawHover[1]-last[1])):0,ang=last&&drawHover&&len?Math.round((Math.atan2(-(drawHover[1]-last[1]),drawHover[0]-last[0])*180/Math.PI+360)%360):null;
+    const perim=pts.reduce((s,p,i)=>i?s+Math.hypot(p[0]-pts[i-1][0],p[1]-pts[i-1][1]):0,0);
+    hud.innerHTML=`<div class="dh-row"><span class="dh-step">${!pts.length?'1 · Щёлкните первый угол':pts.length<3?`2 · Следующий угол (${pts.length+1})`:'3 · Продолжайте или замкните контур'}</span><button type="button" class="dh-ortho ${pstate().ortho?'on':''}" data-draft-ortho title="Только прямые углы (Shift — временно наоборот)">⊾ Прямые углы</button></div>
+      <div class="dh-row dh-nums">${last?`<span>Стена: <b>${draftTyped?draftTyped+'▍':len}</b> мм</span>${ang!==null?`<span>Угол: <b>${ang}°</b></span>`:''}`:'<span>Начало контура</span>'}<span>Углов: <b>${pts.length}</b></span>${perim?`<span>Периметр: <b>${(perim/1000).toFixed(2).replace('.',',')}</b> м</span>`:''}</div>
+      <div class="dh-keys">${last?'<span><kbd>0–9</kbd> длина стены + <kbd>Enter</kbd></span>':''}<span><kbd>Shift</kbd> любой угол</span>${pts.length?'<span><kbd>Backspace</kbd> убрать угол</span>':''}${pts.length>2?'<span><kbd>Enter</kbd> или клик по 1-й точке — замкнуть</span>':''}<span><kbd>Esc</kbd> отмена</span></div>`;
+  }
+  function draftPlaceTyped(){const v=Number(draftTyped);draftTyped='';const d=draftDirection(),pts=pstate().draftPoints||[],last=pts[pts.length-1];if(!last||!d||!(v>=50)){toast('Наведите курсор в нужном направлении и введите длину от 50 мм','warn');draftHud();return}pushPlannerHistory();pts.push([Math.round(last[0]+d[0]*v),Math.round(last[1]+d[1]*v)]);drawHover=pts[pts.length-1];renderPlanner();persist()}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Shift'&&!draftShift){draftShift=true}
+    if(!pstate().drawing||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
+    if(/^[0-9]$/.test(e.key)&&(pstate().draftPoints||[]).length){draftTyped=(draftTyped+e.key).slice(0,6);draftHud();e.preventDefault();e.stopImmediatePropagation();return}
+    if(e.key==='Backspace'){e.preventDefault();e.stopImmediatePropagation();if(draftTyped){draftTyped=draftTyped.slice(0,-1);draftHud();return}const pts=pstate().draftPoints||[];if(pts.length){pushPlannerHistory();pts.pop();renderPlanner();persist()}return}
+    if(e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();if(draftTyped){draftPlaceTyped();return}if((pstate().draftPoints||[]).length>2)finishCustomRoom();return}
+    if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();if(draftTyped){draftTyped='';draftHud();return}if((pstate().draftPoints||[]).length){pushPlannerHistory();pstate().draftPoints=[];renderPlanner();persist();toast('Контур сброшен — начните заново')}return}
+  },true);
+  document.addEventListener('keyup',e=>{if(e.key==='Shift')draftShift=false});
+  document.addEventListener('click',e=>{if(e.target.closest('[data-draft-ortho]')){pstate().ortho=!pstate().ortho;draftHud();persist()}});
+  document.addEventListener('pointermove',e=>{if(pstate().drawing&&e.target.closest?.('#plannerSvg'))requestAnimationFrame(draftHud)});
+  const renderPlannerFloatBase=renderPlanner;renderPlanner=function(){if(pstate().magnet===false)pstate().magnet=true;renderPlannerFloatBase();{const svg=$('#plannerSvg');if(svg){const rs=rulerSvg();if(rs)svg.insertAdjacentHTML('beforeend',rs)}}syncUnderlayForm();renderCapacityStatus();const fill=$('#plannerFillRowsBtn'),so=selected();if(fill)fill.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());const blockBtn=$('#plannerSelectBlockBtn');if(blockBtn)blockBtn.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());positionPlannerFloatBar();decoratePlannerSelection();renderQuickProps();renderAlignBar();draftHud();{const sb=$('#plannerSheetPropsBtn');if(sb)sb.classList.toggle('has-sel',!!so)}};
   {const renderPlannerAisleOuter=renderPlanner;renderPlanner=function(){return withAisleShift(()=>renderPlannerAisleOuter())}}
   function decoratePlannerSelection(){const svg=$('#plannerSvg');if(!svg)return;const ids=new Set(groupActive()?plannerGroupSel:[]);svg.querySelectorAll('[data-planner-object]').forEach(el=>el.classList.toggle('group-selected',ids.has(el.dataset.plannerObject)));const list=subjectList();if(!list.length||!pstate().room.created||/planner-stage-room/.test(document.body.className))return;const o=selected();if(isWallOpening(o))return;const r=subjectRect(list);let extra='';if(groupActive()){const M=cadMetrics();extra+=`<rect class="group-frame" x="${r.x-M.u*6}" y="${r.y-M.u*6}" width="${r.w+M.u*12}" height="${r.h+M.u*12}" rx="${M.u*6}"/><text class="group-frame-label" x="${r.x}" y="${r.y-M.u*11}" font-size="${M.font}">Блок: ${list.length} ${plural(list.length,'ряд','ряда','рядов')} · ${Math.round(r.w)} × ${Math.round(r.h)} мм</text>`}if(!drag||drag.type!=='pan')extra+=buildSubjectWallDims(r);svg.insertAdjacentHTML('beforeend',extra)}
   function positionPlannerFloatBar(){
