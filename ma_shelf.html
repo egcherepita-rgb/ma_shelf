@@ -1794,6 +1794,55 @@ html:root body.planner-stage-room .planner-toolbar-one :is(.planner-rail-aisle-c
 .config-plan-only-add{margin-top:4px;font-size:12px;color:#7a5200;background:#fff6e5;border:1px solid #f3d9a6;border-radius:8px;padding:5px 8px}
 @media (max-width:700px){.plan-comp-row{grid-template-columns:26px 1fr;}.pc-secs,.pc-count{grid-column:2}}
 </style>
+<style id="ui-planner-v5">
+.planner-align-bar{margin:8px 0;padding:10px;border:1px solid #d6e2f5;border-radius:12px;background:#f4f8ff;display:grid;gap:6px}
+.planner-align-bar.hidden{display:none}
+.planner-align-bar .pab-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.planner-align-bar .btn{height:32px;min-height:32px;padding:0 4px;font-size:12px;white-space:nowrap;justify-content:center}
+.planner-wizard{display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:end;margin-top:6px}
+.planner-wizard .pw-gap{display:grid;gap:3px;font-size:10.5px;font-weight:700;color:#53627a}
+.planner-wizard .qp-input{display:flex;align-items:center;border:1px solid #cfd9e7;border-radius:9px;background:#fff;padding:0 6px;height:34px;width:96px}
+.planner-wizard .qp-input input{border:0;outline:0;width:100%;min-width:0;font:600 13px/1 inherit;font-family:inherit;background:transparent}
+.planner-wizard .qp-input em{font-style:normal;font-size:10.5px;color:#8391a5}
+.planner-wizard-btn{height:34px;min-height:34px;font-size:12px;padding:0 8px;background:#eef4ff;border-color:#9fb8ea;color:#163f9e;white-space:nowrap}
+.planner-sheet-btns{display:none}
+html:root body .planner-library .planner-lib-step,html:root body .planner-library .planner-catalog-grid,html:root body .planner-library .planner-catalog-card{min-width:0!important;max-width:100%!important;box-sizing:border-box}
+html:root body .planner-library .planner-catalog-grid{grid-template-columns:minmax(0,1fr)!important}
+.planner-wizard{grid-template-columns:78px minmax(0,1fr)}
+.planner-wizard .qp-input{width:auto}
+.planner-wizard-btn{overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+@media (max-height:940px) and (min-width:901px){html:root body .planner-library .planner-catalog-card .planner-catalog-specs,html:root body .planner-library .planner-catalog-card .planner-ready-head{display:none!important}html:root body .planner-library .planner-topview-scheme svg{max-height:70px}}
+@media (max-width:900px){
+  body.planner-focus .planner-workspace{display:block!important;position:relative}
+  body.planner-focus .planner-canvas-area,body.planner-focus .planner-panel .planner-canvas-wrap{min-height:calc(100dvh - 220px)}
+  body.planner-focus .planner-side.planner-library,body.planner-focus .planner-side.planner-properties{position:fixed!important;left:0;right:0;bottom:0;top:auto!important;z-index:140;max-height:78dvh;width:auto!important;overflow:auto;border-radius:18px 18px 0 0!important;box-shadow:0 -12px 40px rgba(20,35,60,.28);transform:translateY(105%);transition:transform .25s ease;margin:0!important;background:#fff}
+  body.planner-focus.pl-sheet-lib .planner-side.planner-library,body.planner-focus.pl-sheet-props .planner-side.planner-properties{transform:none}
+  body.planner-focus.planner-stage-room .planner-side.planner-library{transform:none;position:static!important;max-height:none;box-shadow:none;border-radius:16px!important}
+  body.planner-focus .planner-sheet-btns{display:flex;gap:6px;position:absolute;right:8px;bottom:8px;z-index:30}
+  body.planner-focus.planner-stage-room .planner-sheet-btns{display:none}
+  .planner-sheet-btns .btn{height:40px;min-height:40px;padding:0 14px;border-radius:12px;box-shadow:0 6px 18px rgba(20,35,60,.2);background:#fff;font-weight:700}
+  .planner-sheet-btns #plannerSheetPropsBtn.has-sel{background:#2357d6;color:#fff;border-color:#2357d6}
+  body.planner-focus.pl-sheet-lib .planner-side.planner-library::before,body.planner-focus.pl-sheet-props .planner-side.planner-properties::before{content:"";display:block;width:44px;height:5px;border-radius:3px;background:#cfd8e5;margin:8px auto 0}
+  .planner-sheet-close.planner-sheet-close{display:block}
+  html:root body.planner-focus .planner-side.planner-library,html:root body.planner-focus .planner-side.planner-properties{display:block!important}
+  html:root body.planner-focus .planner-canvas-wrap{min-height:64dvh!important;height:64dvh!important}
+  html:root body.planner-focus .planner-status{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px}
+  html:root body.planner-focus .planner-status>*{flex:0 0 auto!important;width:auto!important}
+  html:root body.planner-focus.planner-stage-room .planner-canvas-wrap{height:46dvh!important;min-height:46dvh!important}
+  html:root body.planner-focus.planner-stage-room .planner-workspace>*{width:auto!important;max-width:none!important}
+  html:root body.planner-focus.planner-stage-room .planner-side.planner-library{display:none!important}
+  html:root body.planner-focus :has(>.planner-room-builder){flex-direction:column!important;display:flex!important}
+  html:root body.planner-focus .planner-room-builder{width:auto!important;max-width:none!important;flex:0 0 auto!important}
+  html:root body.planner-focus .planner-panel,html:root body.planner-focus .planner-workspace{min-width:0!important;max-width:100%!important;width:auto!important;box-sizing:border-box}
+  html:root body.planner-focus .planner-canvas-wrap,html:root body.planner-focus .planner-toolbar{min-width:0!important;max-width:100%!important}
+  html:root body.planner-focus .step-page.active{grid-template-columns:minmax(0,1fr)!important}
+  html:root body.planner-focus .planner-stage-card{min-width:0!important;max-width:100%!important}
+  html:root body .toast-wrap{right:12px;left:12px;bottom:76px;justify-items:stretch}
+  html:root body .toast{font-size:13px;padding:9px 12px}
+}
+.planner-sheet-close{display:none;position:sticky;top:6px;margin:6px 8px -36px auto;width:32px;height:32px;border-radius:50%;border:1px solid #d3dcea;background:#fff;font-size:14px;z-index:5;cursor:pointer}
+body.planner-stage-room .planner-library .planner-sheet-close{display:none!important}
+</style>
 </head>
 <body>
 <header class="app-header">
@@ -2027,7 +2076,7 @@ html:root body.planner-stage-room .planner-toolbar-one :is(.planner-rail-aisle-c
         </div>
 
         <div class="planner-workspace">
-          <aside class="planner-side planner-library">
+          <aside class="planner-side planner-library"><button type="button" class="planner-sheet-close" data-sheet="close" aria-label="Закрыть панель">✕</button>
             <div class="planner-side-body">
               <div class="planner-section">
                 <div class="planner-catalog-controls">
@@ -2039,7 +2088,7 @@ html:root body.planner-stage-room .planner-toolbar-one :is(.planner-rail-aisle-c
                   <div><span class="planner-control-caption">Глубина полки</span><div class="planner-depth-tabs" id="plannerCatalogDepthTabs"><button type="button" class="planner-depth-tab" data-catalog-depth="250">250 мм</button><button type="button" class="planner-depth-tab active" data-catalog-depth="300">300 мм</button><button type="button" class="planner-depth-tab" data-catalog-depth="400">400 мм</button></div></div></div>
                   <div class="planner-section-composer planner-lib-step" data-title="Состав ряда"><div class="planner-section-composer-head"><label class="planner-control-label">Основная секция<select class="select" id="plannerMainSectionWidth" aria-label="Ширина основной секции"><option value="700">700 мм</option><option value="1000" selected>1000 мм</option><option value="1200">1200 мм</option></select></label><button class="planner-composition-reset" id="plannerClearAdditionalBtn" type="button">Убрать доп.</button></div><div><span class="planner-control-caption">Добавить дополнительную</span><div class="planner-add-section-buttons"><button type="button" data-add-section-width="700">+ 700</button><button type="button" data-add-section-width="1000">+ 1000</button><button type="button" data-add-section-width="1200">+ 1200</button></div></div><div class="planner-composition" id="plannerSectionComposition"></div></div>
                 </div>
-                <div class="planner-lib-step planner-lib-step-place" data-title="На план" title="Нажмите «Добавить на план» или перетащите карточку на схему"><div class="planner-catalog-grid" id="plannerCatalogGrid"></div></div>
+                <div class="planner-lib-step planner-lib-step-place" data-title="На план" title="Нажмите «Добавить на план» или перетащите карточку на схему"><div class="planner-catalog-grid" id="plannerCatalogGrid"></div><div class="planner-wizard"><label class="pw-gap">От стены<span class="qp-input"><input type="number" id="plannerWizardWallGap" value="0" min="0" step="10"><em>мм</em></span></label><button type="button" class="btn planner-wizard-btn" id="plannerFillRoomBtn" title="Поставить этот ряд в угол помещения и достроить ряды до стены с рабочим проходом">⇶ Заполнить всё</button></div></div>
               </div>
               <div class="hidden" aria-hidden="true"><div id="plannerConfigList"></div><select id="plannerGroupConfig"></select><input id="plannerGroupSections" value="4"><input id="plannerGroupMobileRows" value="0"><input id="plannerGroupStationaryRows" value="0"><input id="plannerGroupAisle" value="1200"><button id="plannerAddGroupBtn" type="button"></button></div>
             </div>
@@ -2050,6 +2099,7 @@ html:root body.planner-stage-room .planner-toolbar-one :is(.planner-rail-aisle-c
                 <div class="planner-toolbar-row"><div class="planner-toolbar-group planner-zoom-tools"><span class="planner-toolbar-caption">Масштаб</span><button class="btn planner-icon-btn" id="plannerZoomOutBtn" type="button" title="Уменьшить масштаб" aria-label="Уменьшить масштаб">−</button><button class="btn planner-fit-btn" id="plannerZoomFitBtn" type="button" title="Показать помещение целиком" aria-label="Показать помещение целиком">Вписать</button><button class="btn planner-icon-btn" id="plannerZoomInBtn" type="button" title="Увеличить масштаб" aria-label="Увеличить масштаб">＋</button></div><div class="planner-toolbar-group planner-history-tools"><span class="planner-toolbar-caption">Действия</span><button class="btn planner-history-btn" id="plannerUndoBtn" type="button" title="Отменить последнее действие (Ctrl+Z)" aria-label="Отменить последнее действие"><span class="tb-ico" aria-hidden="true">↶</span><span class="tb-lbl">Назад</span></button><button class="btn planner-history-btn" id="plannerRedoBtn" type="button" title="Вернуть действие (Ctrl+Y)" aria-label="Вернуть отменённое действие"><span class="tb-ico" aria-hidden="true">↷</span><span class="tb-lbl">Вперёд</span></button></div><button class="btn planner-3d-btn" id="planner3dBtn" type="button" title="Открыть пространственную визуализацию помещения" aria-label="Открыть 3D-визуализацию"><span class="planner-3d-btn-icon" aria-hidden="true">3D</span><span class="planner-3d-btn-label">3D‑вид</span></button><span class="tb-sep" aria-hidden="true"></span><div class="planner-rail-aisle-control" title="Рабочий ход мобильного ряда и выступ рельса за край стеллажа. Минимум 750 мм."><span class="tb-lbl tb-keep">Ход</span><input id="plannerRailAisle" type="number" min="750" max="5000" step="50" value="1000" inputmode="numeric" aria-label="Рабочий проход и ход рельса в миллиметрах"><span>мм</span><span class="planner-rail-aisle-mode" id="plannerRailAisleMode">принято</span><button class="planner-rail-aisle-reset" id="plannerRailAisleReset" type="button" title="Вернуть значение по умолчанию 1000 мм" aria-label="Сбросить ход рельса к значению по умолчанию">↺</button></div><button class="btn planner-clearance-toggle" id="plannerClearanceToggle" type="button" aria-pressed="false" title="Цепочка размеров от стен до стеллажей и колонн (снизу и справа от плана)" aria-label="Привязки: размеры от стен до стеллажей и колонн"><span class="tb-ico" aria-hidden="true">↔</span><span class="tb-lbl">Привязки</span></button><button class="btn planner-rack-dim-toggle" id="plannerRackDimensionsToggle" type="button" aria-pressed="false" title="Показать ширину секций и габаритную глубину стеллажей" aria-label="Размеры стеллажей"><span class="tb-ico" aria-hidden="true">⇥</span><span class="tb-lbl">Размеры</span></button><label class="planner-magnet-switch" title="Автоматически приклеивать стеллажи к стенам и друг к другу. Alt временно отключает магнит."><input type="checkbox" id="plannerMagnetToggle" checked aria-label="Включить или выключить магнит"><span><span class="tb-ico" aria-hidden="true">🧲</span><span class="tb-lbl">Магнит</span></span></label><label class="planner-snap-switch" title="Шаг перемещения 100 мм: стеллажи и объекты двигаются ровно по сетке. Снимите галочку, чтобы двигать плавно, с точностью до 1 мм. Прилипание к стенам и соседним рядам работает в обоих режимах."><input type="checkbox" id="plannerSnapToggle" checked aria-label="Перемещать с шагом 100 мм"><span><span class="tb-lbl tb-keep">Шаг 100 мм</span></span></label><button class="btn planner-edit-room-btn hidden" id="plannerEditRoomBtn" type="button" title="Вернуться к форме и размерам помещения, не удаляя стеллажи" aria-label="Изменить помещение"><span class="tb-ico" aria-hidden="true">✎</span><span class="tb-lbl">Помещение</span></button><div class="planner-toolbar-spacer"></div><button class="btn danger planner-clear-toolbar" id="plannerClearRoomBtn" type="button" title="Удалить помещение и все объекты" aria-label="Очистить помещение"><span class="tb-ico" aria-hidden="true">⌫</span><span class="tb-lbl">Очистить</span></button></div>
               </div>
             <div class="planner-canvas-wrap">
+              <div class="planner-sheet-btns"><button type="button" class="btn" data-sheet="lib">▤ Каталог</button><button type="button" class="btn" id="plannerSheetPropsBtn" data-sheet="props">⚙ Свойства</button></div>
               <div class="planner-toolbar-group planner-room-tools planner-tool-palette" role="toolbar" aria-orientation="vertical" aria-label="Добавить на план" id="plannerRoomObjectTools"><button class="btn planner-room-tool" type="button" data-add-tool="column" title="Добавить колонну на план" aria-label="Добавить колонну"><span class="planner-room-tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="1.5" fill="currentColor" fill-opacity=".28"/></svg></span><span class="planner-room-tool-label">Колонна</span></button><button class="btn planner-room-tool" type="button" data-add-tool="door" title="Установить дверь в ближайшую стену" aria-label="Установить дверь в стену"><span class="planner-room-tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h16M6 20V6"/><path d="M6 6a14 14 0 0 1 13 14" stroke-dasharray="2.5 2.5"/></svg></span><span class="planner-room-tool-label">Дверь</span></button><button class="btn planner-room-tool" type="button" data-add-tool="window" title="Установить окно в ближайшую стену" aria-label="Установить окно в стену"><span class="planner-room-tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M12 9v6"/></svg></span><span class="planner-room-tool-label">Окно</span></button><button class="btn planner-room-tool" type="button" data-add-tool="zone" title="Добавить запретную зону" aria-label="Добавить запретную зону"><span class="planner-room-tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 3"/><path d="M8 16 16 8M8 12l4-4M12 16l4-4"/></svg></span><span class="planner-room-tool-label">Зона</span></button><button class="btn planner-room-tool" type="button" data-add-tool="aisle" title="Добавить проход заданной ширины" aria-label="Добавить проход"><span class="planner-room-tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></span><span class="planner-room-tool-label">Проход</span></button></div>
               <div class="planner-drawing-banner hidden" id="plannerDrawingTip"><b>Рисование помещения</b><span>Клик — следующая точка · двойной клик — завершить</span></div><div class="planner-drop-hint hidden" id="plannerDropHint"><div>Отпустите стеллаж в нужном месте<small>Положение уточняется сеткой и магнитом</small></div></div><div class="planner-magnet-badge hidden" id="plannerMagnetBadge" title="Стеллажи прилипают к стенам и друг к другу. Удерживайте Alt при перемещении, чтобы временно отключить."><span>🧲</span><b>Магнит включён</b></div>
               <svg class="planner-svg" id="plannerSvg" role="img" aria-label="План помещения и расстановка стеллажей"></svg>
@@ -2058,13 +2108,13 @@ html:root body.planner-stage-room .planner-toolbar-one :is(.planner-rail-aisle-c
             <div class="planner-status" id="plannerStatus"></div>
           </div>
 
-          <aside class="planner-side planner-properties">
+          <aside class="planner-side planner-properties"><button type="button" class="planner-sheet-close" data-sheet="close" aria-label="Закрыть панель">✕</button>
             <div class="planner-side-head"><b>Свойства</b><small>Точные размеры и положение</small></div>
             <div class="planner-toolbar-group planner-object-tools planner-dock-actions hidden" role="toolbar" aria-label="Действия с выбранным объектом" id="plannerObjectTools"><button class="btn planner-attach-btn" id="plannerAttachBtn" type="button" title="Притянуть выбранный стеллаж к ближайшей стене или соседнему стеллажу" aria-label="Притянуть выбранный стеллаж">🧲 Притянуть</button><button class="btn" id="plannerRotateBtn" type="button" title="Повернуть выбранный объект на 90°" aria-label="Повернуть выбранный объект">↻ Повернуть</button><button class="btn" id="plannerDuplicateBtn" type="button" title="Создать копию выбранного объекта" aria-label="Копировать выбранный объект">⧉ Копировать</button><button class="btn" id="plannerSelectBlockBtn" type="button" title="Выделить все примыкающие ряды и двигать их вместе (или двойной щелчок по ряду)" aria-label="Выделить весь блок">▦ Весь блок</button><button class="btn" id="plannerFillRowsBtn" type="button" title="Достроить ряды вплотную до стены, сохранив рабочий проход" aria-label="Заполнить рядами до стены">⇶ Заполнить</button><button class="btn danger" id="plannerDeleteBtn" type="button" title="Удалить выбранный объект" aria-label="Удалить выбранный объект">× Удалить</button></div>
             <div class="planner-side-body">
               <div id="plannerPropsEmpty" class="planner-props-empty"><span>↖</span><b>Выберите объект на плане</b><small>После выбора здесь появятся размеры и положение.</small></div>
               <div id="plannerProps" class="hidden">
-                <div class="planner-selected-title" id="plannerSelectedTitle">—</div><div class="planner-selected-meta" id="plannerSelectedMeta">—</div><div class="planner-quick-props" id="plannerQuickProps"></div>
+                <div class="planner-selected-title" id="plannerSelectedTitle">—</div><div class="planner-selected-meta" id="plannerSelectedMeta">—</div><div class="planner-quick-props" id="plannerQuickProps"></div><div class="planner-align-bar hidden" id="plannerAlignBar" role="toolbar" aria-label="Выравнивание рядов"><span class="qp-title">Выровнять выделенные ряды</span><div class="pab-btns"><button type="button" class="btn" data-align="left" title="По левому краю (фасады со штурвалами)">⇤ Лево</button><button type="button" class="btn" data-align="right" title="По правому краю">Право ⇥</button><button type="button" class="btn" data-align="hcenter" title="По центру">↔ Центр</button><button type="button" class="btn" data-align="top" title="По верхнему краю">⤒ Верх</button><button type="button" class="btn" data-align="bottom" title="По нижнему краю">⤓ Низ</button><button type="button" class="btn" data-align="vdist" title="Равные промежутки между рядами по вертикали">☰ Распр. ↕</button><button type="button" class="btn" data-align="hdist" title="Равные промежутки по горизонтали">Ⅲ Распр. ↔</button></div></div>
                 <div class="field"><label for="plannerPropLabel">Обозначение</label><input class="input" id="plannerPropLabel"></div>
                 <div class="planner-form-grid" style="margin-top:8px">
                   <div class="field"><label for="plannerPropX">Отступ слева X, мм</label><input class="input" id="plannerPropX" type="number" step="10"></div>
@@ -3498,7 +3548,44 @@ function renderCatalog(){
       const num=card.querySelector('.config-number');if(num)num.textContent=`Секции ${c.width} мм`;
     });
   }
-  const renderPlannerFloatBase=renderPlanner;renderPlanner=function(){if(pstate().magnet===false)pstate().magnet=true;renderPlannerFloatBase();const fill=$('#plannerFillRowsBtn'),so=selected();if(fill)fill.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());const blockBtn=$('#plannerSelectBlockBtn');if(blockBtn)blockBtn.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());positionPlannerFloatBar();decoratePlannerSelection();renderQuickProps()};
+
+  // ---------- 2. Fill the whole room with the current catalog row ----------
+  function fillRoomWithCatalogRow(){
+    if(!pstate().room.created){toast('Сначала создайте помещение','bad');return}
+    const card=document.querySelector('.planner-library [data-library-kind]');if(!card){toast('Соберите ряд в каталоге слева','bad');return}
+    const before=pstate().objects.length;addObjectAtLibraryCard(card);const o=pstate().objects[pstate().objects.length-1];
+    if(pstate().objects.length===before||!o||o.kind!=='archive'){return}
+    const poly=roomPoints(),xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),r=footprint(o),wall=Math.max(0,Number($('#plannerWizardWallGap')?.value)||0);
+    // corner candidates scanned from the top-left; the first free one wins
+    let placed=false;
+    for(let y=Math.min(...ys)+wall+r.h/2;y<=Math.max(...ys)-r.h/2&&!placed;y+=100)for(let x=Math.min(...xs)+wall+r.w/2;x<=Math.max(...xs)-r.w/2;x+=50){if(validSolidSpot(o,x,y)){o.cx=x;o.cy=y;placed=true;break}}
+    if(!placed){toast('В помещении нет места для этого ряда','warn');return}
+    pstate().selectedId=o.id;plannerGroupSel=[];renderPlanner();
+    fillRowsFromSelected();
+    const block=rackBlockIds(o).length;selectBlock(o);persist();document.body.classList.remove('pl-sheet-lib');
+    toast(`Помещение заполнено: ${block} ${plural(block,'ряд','ряда','рядов')}${o.rackType==='mobile'?` · рабочий проход ${plannerRailAisleMm()} мм`:''}. Блок выделен — его можно передвинуть или задать отступы от стен`,'good');
+  }
+  // ---------- 3. Align / distribute the selected rows ----------
+  function alignSelected(mode){
+    const list=groupActive()?groupMembers():[];if(list.length<2){toast('Выделите несколько рядов: Ctrl + щелчок','warn');return}
+    const save=list.map(m=>[m,m.cx,m.cy]),R=subjectRect(list);pushPlannerHistory();
+    const fp=m=>footprint(m);
+    if(mode==='left')list.forEach(m=>{m.cx+=R.x-fp(m).x});
+    if(mode==='right')list.forEach(m=>{const f=fp(m);m.cx+=R.x+R.w-(f.x+f.w)});
+    if(mode==='top')list.forEach(m=>{m.cy+=R.y-fp(m).y});
+    if(mode==='bottom')list.forEach(m=>{const f=fp(m);m.cy+=R.y+R.h-(f.y+f.h)});
+    if(mode==='hcenter')list.forEach(m=>{const f=fp(m);m.cx+=R.x+R.w/2-(f.x+f.w/2)});
+    if(mode==='vdist'||mode==='hdist'){const v=mode==='vdist',sorted=[...list].sort((a,b)=>v?fp(a).y-fp(b).y:fp(a).x-fp(b).x),sum=sorted.reduce((s,m)=>s+(v?fp(m).h:fp(m).w),0),gap=((v?R.h:R.w)-sum)/(sorted.length-1);let cur=v?R.y:R.x;sorted.forEach(m=>{const f=fp(m);if(v)m.cy+=cur-f.y;else m.cx+=cur-f.x;cur+=(v?f.h:f.w)+gap})}
+    const ids=new Set(list.map(m=>m.id)),poly=roomPoints(),bad=list.some(m=>!rectInsideRoom(fp(m),poly)||pstate().objects.some(x=>x.id!==m.id&&isSolidObstacle(x)&&isSolidObstacle(m)&&overlap(fp(m),fp(x))));
+    if(bad){save.forEach(([m,x,y])=>{m.cx=x;m.cy=y});plannerUndoStack.pop();toast('Так выровнять нельзя: ряды пересекутся или выйдут за стену','warn');renderPlanner();return}
+    renderPlanner();persist();toast({left:'Выровнено по левому краю',right:'Выровнено по правому краю',top:'Выровнено по верхнему краю',bottom:'Выровнено по нижнему краю',hcenter:'Выровнено по центру',vdist:'Промежутки по вертикали выровнены',hdist:'Промежутки по горизонтали выровнены'}[mode],'good');
+  }
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-align]');if(b){alignSelected(b.dataset.align);return}if(e.target.closest('#plannerFillRoomBtn'))fillRoomWithCatalogRow()});
+  function renderAlignBar(){const bar=$('#plannerAlignBar');if(bar)bar.classList.toggle('hidden',!groupActive())}
+  // ---------- 4. Phone layout: drawers for catalog and properties ----------
+  function plannerSheet(which){document.body.classList.toggle('pl-sheet-lib',which==='lib'&&!document.body.classList.contains('pl-sheet-lib'));document.body.classList.toggle('pl-sheet-props',which==='props'&&!document.body.classList.contains('pl-sheet-props'));if(which===null)document.body.classList.remove('pl-sheet-lib','pl-sheet-props')}
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-sheet]');if(t){plannerSheet(t.dataset.sheet==='close'?null:t.dataset.sheet);e.preventDefault()}});
+  const renderPlannerFloatBase=renderPlanner;renderPlanner=function(){if(pstate().magnet===false)pstate().magnet=true;renderPlannerFloatBase();const fill=$('#plannerFillRowsBtn'),so=selected();if(fill)fill.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());const blockBtn=$('#plannerSelectBlockBtn');if(blockBtn)blockBtn.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());positionPlannerFloatBar();decoratePlannerSelection();renderQuickProps();renderAlignBar();{const sb=$('#plannerSheetPropsBtn');if(sb)sb.classList.toggle('has-sel',!!so)}};
   function decoratePlannerSelection(){const svg=$('#plannerSvg');if(!svg)return;const ids=new Set(groupActive()?plannerGroupSel:[]);svg.querySelectorAll('[data-planner-object]').forEach(el=>el.classList.toggle('group-selected',ids.has(el.dataset.plannerObject)));const list=subjectList();if(!list.length||!pstate().room.created||/planner-stage-room/.test(document.body.className))return;const o=selected();if(isWallOpening(o))return;const r=subjectRect(list);let extra='';if(groupActive()){const M=cadMetrics();extra+=`<rect class="group-frame" x="${r.x-M.u*6}" y="${r.y-M.u*6}" width="${r.w+M.u*12}" height="${r.h+M.u*12}" rx="${M.u*6}"/><text class="group-frame-label" x="${r.x}" y="${r.y-M.u*11}" font-size="${M.font}">Блок: ${list.length} ${plural(list.length,'ряд','ряда','рядов')} · ${Math.round(r.w)} × ${Math.round(r.h)} мм</text>`}if(!drag||drag.type!=='pan')extra+=buildSubjectWallDims(r);svg.insertAdjacentHTML('beforeend',extra)}
   function positionPlannerFloatBar(){
     const bar=$('#plannerObjectTools');if(!bar)return;
@@ -4158,7 +4245,7 @@ function renderCatalog(){
     if(e.target.closest('#plannerClearAdditionalBtn')){catalogState.sectionWidths=[catalogState.sectionWidths[0]||1000];renderCatalog();return;}
     const selectedAddSection=e.target.closest('[data-selected-add-section]');if(selectedAddSection){appendSectionToSelected(selectedAddSection.dataset.selectedAddSection);return;}
     const selectedRemoveSection=e.target.closest('[data-selected-remove-section]');if(selectedRemoveSection){removeSectionFromSelected(selectedRemoveSection.dataset.selectedRemoveSection);return;}
-    const catalogAdd=e.target.closest('[data-catalog-add]');if(catalogAdd){addObjectAtLibraryCard(catalogAdd.closest('[data-library-kind]'));return;}
+    const catalogAdd=e.target.closest('[data-catalog-add]');if(catalogAdd){addObjectAtLibraryCard(catalogAdd.closest('[data-library-kind]'));document.body.classList.remove('pl-sheet-lib');return;}
     const foundationAuto=e.target.closest('[data-foundation-auto]');if(foundationAuto){const hasPlan=!!pstate().room.created;if(hasPlan){state.foundationAuto=true;renderRails();toast('Рельсовая система пересчитана по плану помещения','good')}else{applyFoundationRecommendation();state.foundationAuto=false;renderRails();toast('Расчётное количество подставлено для ручной проверки','good')}renderAside();persist();return;}
     const foundationManual=e.target.closest('[data-foundation-manual]');if(foundationManual){state.foundationAuto=false;renderFoundationRecommendation();persist();toast('Включён ручной ввод рельсовой системы');return;}
     const wallDir=e.target.closest('[data-wall-dir]');if(wallDir){addWallByDirection(wallDir.dataset.wallDir);return;}
