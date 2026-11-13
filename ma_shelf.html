@@ -2467,7 +2467,7 @@ html body .planner-clear-room-action{height:32px!important;min-height:32px!impor
     <div class="planner-3d-stage">
       <canvas class="planner-3d-canvas" id="planner3dCanvas" aria-label="Реалистичная трёхмерная визуализация помещения и расставленных стеллажей"></canvas>
       <svg class="planner-3d-svg" id="planner3dSvg" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Трёхмерный вид помещения и расставленных стеллажей"></svg>
-      <div class="planner-3d-helper"><b>ЛКМ — сдвиг · ПКМ — вращение · колесо — масштаб к курсору</b><span>· Shift+ЛКМ или Q/E — вверх/вниз · W A S D — движение · двойной щелчок — сброс</span></div><svg class="planner-3d-axes" id="planner3dAxes" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
+      <div class="planner-3d-helper"><b>ЛКМ — сдвиг · ПКМ — вращение · колесо — масштаб</b><span>· ← → ↑ ↓ — поворот и наклон · W A S D — движение · Q/E — вниз/вверх · +/− — масштаб · R — сброс</span></div><svg class="planner-3d-axes" id="planner3dAxes" viewBox="-50 -50 100 100" aria-hidden="true"></svg>
       <div class="planner-3d-status" id="planner3dStatus"></div>
     </div>
   </div>
@@ -4303,7 +4303,7 @@ function renderCatalog(){
     try{
       const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance',stencil:false});
       renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
-      renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.setClearColor(0xc3ccd5,1);
+      renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.shadowMap.autoUpdate=false;renderer.setClearColor(0xc3ccd5,1);
       const scene=new THREE.Scene(),environment=planner3dEnvironmentMap();scene.background=new THREE.Color(0xc3ccd5);scene.environment=environment;scene.fog=new THREE.Fog(0xc3ccd5,14,30);
       const camera=new THREE.PerspectiveCamera(37,1,.06,120);
       const hemi=new THREE.HemisphereLight(0xffffff,0x66717a,1.35),ambient=new THREE.AmbientLight(0xfffdf7,.28),key=new THREE.DirectionalLight(0xfff4df,2.85),fill=new THREE.DirectionalLight(0xdcecff,1.15);
@@ -4321,8 +4321,7 @@ function renderCatalog(){
   function planner3dWebglSceneSignature(context){
     const rows=context.racks.map(o=>[o._sourceId||o.id,o.cx,o.cy,o.rotation,o.rackType,o.depthMm,o.heightMm,o.shelfCount,rackSectionWidths(o),o.wheelId]);
     const extras=pstate().objects.filter(o=>['column','aisle','zone','door','window'].includes(o.kind)).map(o=>[o.id,o.kind,o.cx,o.cy,o.width,o.depth,o.rotation,o.heightMm,o.sillMm,o.hingeSide,o.swingDirection,o.wallIndex,o.wallT]);
-    const wallSector=Math.floor((((planner3dView.azimuth%360)+360)%360)/45);
-    return JSON.stringify([context.poly,rows,extras,!!context.filled,[...context.invalid].sort(),wallSector])
+    return JSON.stringify([context.poly,rows,extras,!!context.filled,[...context.invalid].sort()])
   }
   function planner3dBuildFolders(parent,widths,shelfStart,shelfLevels,spans,selectedDepth){
     const materials=planner3dWebgl.materials,batches=materials.folders.map(()=>[]),labels=[];let cursor=shelfStart;
@@ -4396,8 +4395,10 @@ function renderCatalog(){
     const floor=new THREE.Mesh(new THREE.ShapeGeometry(shape),materials.floor);floor.rotation.x=-Math.PI/2;floor.position.y=-.006;floor.receiveShadow=true;parent.add(floor);
     const azimuth=planner3dView.azimuth*Math.PI/180,cameraDirection=[Math.cos(azimuth),Math.sin(azimuth)],wallHeight=planner3dMeters(context.wallHeight);
     context.poly.forEach((point,index)=>{
-      const next=context.poly[(index+1)%context.poly.length],a=[planner3dMeters(point[0]-context.center[0]),planner3dMeters(point[1]-context.center[1])],b=[planner3dMeters(next[0]-context.center[0]),planner3dMeters(next[1]-context.center[1])],middle=[(a[0]+b[0])/2,(a[1]+b[1])/2],far=middle[0]*cameraDirection[0]+middle[1]*cameraDirection[1]<0,height=far?wallHeight:.14,wallTopMm=height*1000,thickness=.065;
-      planner3dWallBands(context,index,wallTopMm).forEach(band=>{const p0=[a[0]+(b[0]-a[0])*band.t0,a[1]+(b[1]-a[1])*band.t0],p1=[a[0]+(b[0]-a[0])*band.t1,a[1]+(b[1]-a[1])*band.t1],bandHeight=planner3dMeters(band.top-band.bottom);planner3dAddSegment(parent,p0,p1,thickness,bandHeight,far?materials.wall:materials.wallSide,planner3dMeters(band.bottom)+bandHeight/2)})
+      const next=context.poly[(index+1)%context.poly.length],a=[planner3dMeters(point[0]-context.center[0]),planner3dMeters(point[1]-context.center[1])],b=[planner3dMeters(next[0]-context.center[0]),planner3dMeters(next[1]-context.center[1])],middle=[(a[0]+b[0])/2,(a[1]+b[1])/2],thickness=.065;
+      // Build the tall and the low version once; the camera update just toggles visibility.
+      [true,false].forEach(far=>{const g=new THREE.Group();g.userData.wallMid=middle;g.userData.wallFar=far;const height=far?wallHeight:.14,wallTopMm=height*1000;
+      planner3dWallBands(context,index,wallTopMm).forEach(band=>{const p0=[a[0]+(b[0]-a[0])*band.t0,a[1]+(b[1]-a[1])*band.t0],p1=[a[0]+(b[0]-a[0])*band.t1,a[1]+(b[1]-a[1])*band.t1],bandHeight=planner3dMeters(band.top-band.bottom);planner3dAddSegment(g,p0,p1,thickness,bandHeight,far?materials.wall:materials.wallSide,planner3dMeters(band.bottom)+bandHeight/2)});parent.add(g)})
     });
     pstate().objects.filter(o=>['aisle','zone'].includes(o.kind)).forEach(o=>{
       const width=planner3dMeters(Math.max(50,Number(o.width)||500)),depth=planner3dMeters(Math.max(50,Number(o.depth)||500)),material=o.kind==='aisle'?materials.aisle:materials.zone;
@@ -4430,13 +4431,13 @@ function renderCatalog(){
   function planner3dRenderWebgl(context){
     const engine=planner3dWebgl;if(!planner3dEnsureWebgl())return false;
     engine.lastContext=context;
-    const stage=$('#planner3dCanvas')?.closest('.planner-3d-stage'),width=Math.max(320,Math.round(stage?.clientWidth||1200)),height=Math.max(320,Math.round(stage?.clientHeight||760)),compact=width<820,targetRatio=engine.interacting ? (compact ? .82 : 1) : Math.min(compact?1.15:1.45,window.devicePixelRatio||1),pixelRatio=Math.max(.75,targetRatio);
+    const stage=$('#planner3dCanvas')?.closest('.planner-3d-stage'),width=Math.max(320,Math.round(stage?.clientWidth||1200)),height=Math.max(320,Math.round(stage?.clientHeight||760)),compact=width<820,targetRatio=Math.min(compact?1:1.25,window.devicePixelRatio||1),pixelRatio=Math.max(.75,targetRatio);
     if(width!==engine.width||height!==engine.height||Math.abs(pixelRatio-engine.pixelRatio)>.01){engine.renderer.setPixelRatio(pixelRatio);engine.renderer.setSize(width,height,false);engine.width=width;engine.height=height;engine.pixelRatio=pixelRatio}
     const signature=planner3dWebglSceneSignature(context);
     if(signature!==engine.signature){
       planner3dDisposeRoot();const root=new THREE.Group();engine.root=root;engine.scene.add(root);planner3dBuildRoomWebgl(context,root);context.racks.forEach(o=>planner3dBuildRackWebgl(o,root,context));engine.signature=signature;engine.shadowDirty=true
     }
-    planner3dUpdateWebglCamera(context,width,height);if(engine.shadowDirty)engine.renderer.shadowMap.needsUpdate=true;engine.renderer.render(engine.scene,engine.camera);engine.shadowDirty=false;planner3dDrawAxes(engine.camera);
+    planner3dUpdateWebglCamera(context,width,height);{const az=planner3dView.azimuth*Math.PI/180,cd=[Math.cos(az),Math.sin(az)];let key='';engine.root?.children.forEach(g=>{if(!g.userData||!g.userData.wallMid)return;const m=g.userData.wallMid,far=m[0]*cd[0]+m[1]*cd[1]<0,vis=g.userData.wallFar===far;g.visible=vis;key+=vis?'1':'0'});if(key!==engine.wallKey){engine.wallKey=key;engine.shadowDirty=true}}if(engine.shadowDirty)engine.renderer.shadowMap.needsUpdate=true;engine.renderer.render(engine.scene,engine.camera);engine.shadowDirty=false;planner3dDrawAxes(engine.camera);
     const canvas=$('#planner3dCanvas'),svg=$('#planner3dSvg');canvas?.classList.add('ready');svg?.classList.add('webgl-active');stage?.classList.add('webgl-mode');return true
   }
   function planner3dClearWebgl(){
@@ -4744,12 +4745,16 @@ function renderCatalog(){
   window.addEventListener('pointerup',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
   window.addEventListener('pointercancel',e=>{if(planner3dDrag?.pointerId===e.pointerId)finishPlanner3dDrag()});
   window.addEventListener('keydown',e=>{
-    if(!$('#planner3dModal')?.classList.contains('open')||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
-    const k=e.code,fast=e.shiftKey?3:1,step=Math.max(.15,(planner3dWebgl?.camDistance||8)*.04)*fast;let handled=true;
-    if(k==='KeyW'||k==='ArrowUp')planner3dMove(0,step,0);
-    else if(k==='KeyS'||k==='ArrowDown')planner3dMove(0,-step,0);
-    else if(k==='KeyA'||k==='ArrowLeft')planner3dMove(-step,0,0);
-    else if(k==='KeyD'||k==='ArrowRight')planner3dMove(step,0,0);
+    if(!$('#planner3dModal')?.classList.contains('open')||e.ctrlKey||e.metaKey||(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)&&document.activeElement?.type!=='range'))return;
+    const k=e.code,fast=e.shiftKey?3:1,step=Math.max(.25,(planner3dWebgl?.camDistance||8)*.08)*fast;let handled=true;
+    if(k==='ArrowLeft'){planner3dView.azimuth=((planner3dView.azimuth+6*fast+540)%360)-180}
+    else if(k==='ArrowRight'){planner3dView.azimuth=((planner3dView.azimuth-6*fast+540)%360)-180}
+    else if(k==='ArrowUp'){planner3dView.elevation=Math.min(89,planner3dView.elevation+4*fast)}
+    else if(k==='ArrowDown'){planner3dView.elevation=Math.max(2,planner3dView.elevation-4*fast)}
+    else if(k==='KeyW')planner3dMove(0,step,0);
+    else if(k==='KeyS')planner3dMove(0,-step,0);
+    else if(k==='KeyA')planner3dMove(-step,0,0);
+    else if(k==='KeyD')planner3dMove(step,0,0);
     else if(k==='KeyQ'||k==='PageDown')planner3dMove(0,0,-step*.6);
     else if(k==='KeyE'||k==='PageUp')planner3dMove(0,0,step*.6);
     else if(k==='Equal'||k==='NumpadAdd')planner3dView.zoom=Math.min(12,planner3dView.zoom*1.15);
