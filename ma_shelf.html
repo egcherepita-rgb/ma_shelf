@@ -3126,7 +3126,7 @@ init();
   function intervalOverlap(a0,a1,b0,b1){return Math.max(0,Math.min(a1,b1)-Math.max(a0,b0))}
   function archiveClusters(racks){
     const n=racks.length,parent=Array.from({length:n},(_,i)=>i),find=i=>parent[i]===i?i:(parent[i]=find(parent[i])),join=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent[b]=a},info=racks.map(rackAxisInfo);
-    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const a=info[i],b=info[j];if(a.horizontal!==b.horizontal)continue;const overlapLong=intervalOverlap(a.long0,a.long1,b.long0,b.long1),need=Math.min(a.longLen,b.longLen)*.35,gapCross=intervalGap(a.cross0,a.cross1,b.cross0,b.cross1);if(overlapLong>=Math.max(250,need)&&gapCross<=2200)join(i,j)}
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const a=info[i],b=info[j];if(a.horizontal!==b.horizontal)continue;{const ra=racks[i],rb=racks[j];if(ra.rackType!==rb.rackType||(Number(ra.rotation)||0)!==(Number(rb.rotation)||0))continue;if(Math.abs(a.longLen-b.longLen)>60||Math.abs(a.long0-b.long0)>60)continue}const overlapLong=intervalOverlap(a.long0,a.long1,b.long0,b.long1),need=Math.min(a.longLen,b.longLen)*.35,gapCross=intervalGap(a.cross0,a.cross1,b.cross0,b.cross1);if(overlapLong>=Math.max(250,need)&&gapCross<=2200)join(i,j)}
     const map=new Map();for(let i=0;i<n;i++){const root=find(i);if(!map.has(root))map.set(root,[]);map.get(root).push(racks[i])}return [...map.values()]
   }
   function railPoint(horizontal,long,cross){return horizontal?[long,cross]:[cross,long]}
