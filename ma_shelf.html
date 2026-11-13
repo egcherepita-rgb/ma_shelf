@@ -2029,6 +2029,38 @@ html body .promet-sub{font-size:11.5px;font-weight:600;color:#5d6b82;letter-spac
 .catalog-topview .cv-total{fill:#6a7a90;font-family:Arial,sans-serif;font-weight:600;text-anchor:end}
 html:root body .planner-library .planner-topview-scheme{padding:6px 6px 4px!important;background:linear-gradient(180deg,#fbfcff,#f3f6fb)!important}
 </style>
+<style id="ui-room-builder-v2">
+html body .planner-draw-copy{padding:12px 14px!important;border-radius:14px!important;background:#f5f8ff!important;border:1px solid #dbe5f8!important}
+html body .planner-draw-copy .draw-steps{margin:0;padding:0;list-style:none;counter-reset:ds;display:grid;gap:8px}
+html body .planner-draw-copy .draw-steps li{counter-increment:ds;display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;font-size:13px;line-height:1.35;color:#33445c}
+html body .planner-draw-copy .draw-steps li::before{content:counter(ds);width:22px;height:22px;border-radius:50%;background:var(--primary,#2457d6);color:#fff;font-weight:700;font-size:12px;display:grid;place-items:center}
+html body .planner-draw-copy .draw-steps b{color:#14213a}
+html body .planner-draw-copy .draw-steps li>span{display:block!important}
+html body .planner-draw-copy .draw-steps li>span *{display:inline!important;margin:0!important;width:auto!important}
+html body .planner-draw-copy kbd{display:inline-block!important;padding:0 5px;border:1px solid #cfd9e7;border-bottom-width:2px;border-radius:5px;background:#fff;font:600 11px/1.5 inherit;font-family:inherit}
+html body .planner-draw-copy>:not(.draw-steps){display:none!important}
+html body #plannerDrawPanel .planner-ortho-toggle,html body #plannerDrawPanel label:has(input[type=checkbox]){display:none!important}
+html body .planner-room-actions{position:sticky;bottom:0;z-index:5;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 14px);padding-top:14px!important;margin-top:4px}
+html body .planner-more-ways{margin:14px 0 2px;display:flex;align-items:center;gap:8px}
+html body .planner-more-ways .pmw-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8391a5;white-space:nowrap}
+html body .planner-more-ways::after{content:"";flex:1;height:1px;background:#e3e9f2}
+html body :is(.planner-wall-table-box,.planner-underlay-box){padding:9px 12px!important}
+html body :is(.planner-wall-table-box,.planner-underlay-box) summary small{display:none}
+html body :is(.planner-wall-table-box,.planner-underlay-box)[open] summary small{display:block}
+html body .planner-regulations{margin-top:10px;opacity:.9}
+html:root body .planner-toolbar-one .planner-clear-toolbar.btn{background:#fff!important;border:1px solid #ecd3d6!important;color:#b4232c!important;box-shadow:none!important;gap:6px!important;padding:0 12px!important;font-weight:600!important}
+html:root body .planner-toolbar-one .planner-clear-toolbar.btn:hover{background:#fff4f5!important;border-color:#dfa7ae!important}
+html:root body .planner-toolbar-one .planner-clear-toolbar .tb-ico{font-size:0!important;width:16px;height:16px;display:inline-block;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6'/%3E%3C/svg%3E") center/contain no-repeat}
+html:root body .planner-toolbar-one .planner-clear-toolbar .tb-lbl{display:inline!important;font-size:12.5px}
+html body .planner-room-actions{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important}
+html body .planner-room-actions>*{grid-column:1/-1}
+html body .planner-room-actions .btn{height:40px!important;min-height:40px!important;font-size:13.5px!important;border-radius:11px!important}
+html body .planner-draw-actions.active{display:grid!important;grid-template-columns:1fr 1fr;gap:6px}
+html body .planner-draw-actions.active #plannerFinishRoomBtn{grid-column:1/-1;order:-1}
+html body .planner-draw-actions .btn{height:36px!important;min-height:36px!important;font-size:12.5px!important}
+html body.planner-drawing-active #plannerApplyRoomBtn,html body .planner-room-actions:has(.planner-draw-actions.active) #plannerApplyRoomBtn{background:#fff!important;color:var(--primary)!important;border-color:#c9d6ea!important;box-shadow:none!important;height:34px!important;min-height:34px!important;font-size:12.5px!important;order:3}
+html body .planner-clear-room-action{height:32px!important;min-height:32px!important;font-size:12px!important;border-style:solid!important;order:4}
+</style>
 </head>
 <body>
 <header class="app-header">
@@ -2237,10 +2269,37 @@ html:root body .planner-library .planner-topview-scheme{padding:6px 6px 4px!impo
         <div class="planner-room-builder" id="plannerRoomBar">
           <div class="planner-room-builder-head">
             <div class="planner-room-builder-title"><b>Форма помещения</b><small>Быстрый размер или точный контур по стенам</small></div>
-            <div class="planner-mode-switch" aria-label="Форма помещения"><button class="active" type="button" data-room-mode="rect">Прямоугольник</button><button type="button" data-room-mode="lshape">Г-образное</button><button type="button" data-room-mode="draw">Нарисовать стенами</button></div>
+            <div class="planner-mode-switch" aria-label="Форма помещения"><button class="active" type="button" data-room-mode="rect">Прямоугольник</button><button type="button" data-room-mode="draw">Нарисовать стенами</button></div>
           </div>
           <div class="planner-room-edit-notice hidden" id="plannerRoomEditNotice"><span>✎</span><div><b>Редактирование помещения</b><small id="plannerRoomEditNoticeText">Расставленные стеллажи будут сохранены.</small></div></div>
           <div class="planner-room-builder-body">
+            <div class="planner-preset-fields" id="plannerPresetFields">
+              <div class="field"><label for="plannerRoomWidth">Ширина, мм</label><input class="input" id="plannerRoomWidth" type="number" min="500" step="50" value="6000"></div>
+              <div class="field"><label for="plannerRoomHeight">Длина, мм</label><input class="input" id="plannerRoomHeight" type="number" min="500" step="50" value="5000"></div>
+              <div class="field planner-notch-field hidden"><label for="plannerNotchWidth">Ширина выреза, мм</label><input class="input" id="plannerNotchWidth" type="number" min="100" step="50" value="1200"></div>
+              <div class="field planner-notch-field hidden"><label for="plannerNotchHeight">Глубина выреза, мм</label><input class="input" id="plannerNotchHeight" type="number" min="100" step="50" value="1200"></div>
+            </div>
+            <div class="planner-draw-panel hidden" id="plannerDrawPanel">
+              <div class="planner-draw-copy"><ol class="draw-steps"><li><span><b>Щёлкните</b> первый угол на плане</span></li><li><span>Ведите к следующему углу и <b>щёлкните</b> — или наберите длину и <kbd>Enter</kbd></span></li><li><span><b>Замкните</b> контур: клик по первой точке или <kbd>Enter</kbd></span></li></ol><small>Точные поля справа заполнять не обязательно.</small><label class="planner-ortho-row"><input type="checkbox" id="plannerOrthoToggle" checked> Только горизонтальные и вертикальные стены</label></div>
+              <details class="planner-wall-control">
+                <summary class="planner-wall-control-title"><b>Точное построение по размерам</b><small>Необязательно — раскрывайте, только если известна длина каждой стены.</small></summary>
+                <div class="planner-wall-entry"><div class="field"><label for="plannerWallLength">Длина стены, мм</label><input class="input" id="plannerWallLength" type="number" min="100" step="50" value="1200" aria-describedby="plannerWallLengthHint"><small id="plannerWallLengthHint" class="planner-field-hint">Введите размер и нажмите направление.</small></div><div class="planner-direction-pad" aria-label="Направление стены"><button type="button" data-wall-dir="right" title="Добавить стену вправо">→</button><button type="button" data-wall-dir="down" title="Добавить стену вниз">↓</button><button type="button" data-wall-dir="left" title="Добавить стену влево">←</button><button type="button" data-wall-dir="up" title="Добавить стену вверх">↑</button></div></div>
+              </details>
+            </div>
+            <div class="planner-room-actions"><button class="btn primary planner-create-room-btn" id="plannerApplyRoomBtn" type="button"><span>⌂</span> Создать помещение</button><div class="planner-draw-actions" id="plannerDrawActions"><button class="btn" id="plannerUndoPointBtn" type="button">↶ Убрать стену</button><button class="btn" id="plannerRedoPointBtn" type="button">↷ Вернуть стену</button><button class="btn success" id="plannerFinishRoomBtn" type="button">Замкнуть контур</button></div><button class="btn danger planner-clear-room-action" id="plannerClearRoomActionBtn" type="button">Очистить помещение</button></div>
+            <div class="planner-more-ways"><span class="pmw-title">Другие способы</span></div>
+            <details class="planner-wall-table-box" id="plannerWallTableToggle"><summary><b>Построить по длинам стен</b><small>Как на обмерном плане: длина и направление каждой стены</small></summary>
+              <div class="planner-wall-table" id="plannerWallTable"></div>
+              <div class="wt-actions"><button type="button" class="btn" id="plannerWallAddBtn">+ Стена</button><button type="button" class="btn primary" id="plannerWallBuildBtn">⌂ Построить</button></div>
+              <small class="wt-hint">Начало — левый верхний угол. Последнюю стену до начала можно не вводить: она добавится сама.</small>
+            </details>
+            <details class="planner-underlay-box" id="plannerUnderlayBox"><summary><b>Подложка: план или фото</b><small>Расставляйте стеллажи поверх обмерного плана</small></summary>
+              <label class="btn ul-file"><input type="file" id="plannerUnderlayFile" accept="image/*" hidden>🖼 Загрузить изображение</label>
+              <div class="ul-fields"><label>Ширина картинки, мм<input class="input" id="plannerUnderlayWidth" type="number" min="100" step="10"></label><label>Сдвиг X, мм<input class="input" id="plannerUnderlayX" type="number" step="10"></label><label>Сдвиг Y, мм<input class="input" id="plannerUnderlayY" type="number" step="10"></label><label>Прозрачность, %<input id="plannerUnderlayOpacity" type="range" min="5" max="100" step="5"></label></div>
+              <div class="wt-actions ul-actions"><button type="button" class="btn" id="plannerUnderlayToggle">👁 Скрыть / показать</button><button type="button" class="btn danger" id="plannerUnderlayRemove">Удалить</button></div>
+              <small class="wt-hint">Ширина — реальный размер всего изображения в мм (например, длина стены на плане от края до края картинки).</small>
+            </details>
+            <div class="planner-wall-list hidden" id="plannerWallList"></div>
             <details class="planner-regulations">
               <summary><b>Требования к размещению стеллажей</b><small>Приказ Минкультуры России от 31.03.2015 № 526, пункт 2.21</small></summary>
               <div class="planner-regulations-body">
@@ -2255,32 +2314,6 @@ html:root body .planner-library .planner-topview-scheme{padding:6px 6px 4px!impo
                 <p class="planner-regulations-source">Информационная выдержка из пункта 2.21 приказа. При проектировании учитывайте особенности помещения и действующие требования пожарной безопасности.</p>
               </div>
             </details>
-            <div class="planner-preset-fields" id="plannerPresetFields">
-              <div class="field"><label for="plannerRoomWidth">Ширина, мм</label><input class="input" id="plannerRoomWidth" type="number" min="500" step="50" value="6000"></div>
-              <div class="field"><label for="plannerRoomHeight">Длина, мм</label><input class="input" id="plannerRoomHeight" type="number" min="500" step="50" value="5000"></div>
-              <div class="field planner-notch-field hidden"><label for="plannerNotchWidth">Ширина выреза, мм</label><input class="input" id="plannerNotchWidth" type="number" min="100" step="50" value="1200"></div>
-              <div class="field planner-notch-field hidden"><label for="plannerNotchHeight">Глубина выреза, мм</label><input class="input" id="plannerNotchHeight" type="number" min="100" step="50" value="1200"></div>
-            </div>
-            <div class="planner-draw-panel hidden" id="plannerDrawPanel">
-              <div class="planner-draw-copy"><b>Свободное рисование</b><span>1. Нажмите «Начать рисование» и щёлкните первый угол. 2. Ведите мышь в сторону стены и <b>наберите длину цифрами</b>, затем Enter — или просто щёлкните. 3. Enter или клик по первой точке замыкает контур. Shift — стена под любым углом, Backspace — убрать угол.</span><small>Точные поля справа заполнять не обязательно.</small><label class="planner-ortho-row"><input type="checkbox" id="plannerOrthoToggle" checked> Только горизонтальные и вертикальные стены</label></div>
-              <details class="planner-wall-control">
-                <summary class="planner-wall-control-title"><b>Точное построение по размерам</b><small>Необязательно — раскрывайте, только если известна длина каждой стены.</small></summary>
-                <div class="planner-wall-entry"><div class="field"><label for="plannerWallLength">Длина стены, мм</label><input class="input" id="plannerWallLength" type="number" min="100" step="50" value="1200" aria-describedby="plannerWallLengthHint"><small id="plannerWallLengthHint" class="planner-field-hint">Введите размер и нажмите направление.</small></div><div class="planner-direction-pad" aria-label="Направление стены"><button type="button" data-wall-dir="right" title="Добавить стену вправо">→</button><button type="button" data-wall-dir="down" title="Добавить стену вниз">↓</button><button type="button" data-wall-dir="left" title="Добавить стену влево">←</button><button type="button" data-wall-dir="up" title="Добавить стену вверх">↑</button></div></div>
-              </details>
-            </div>
-            <details class="planner-wall-table-box" id="plannerWallTableToggle"><summary><b>Построить по длинам стен</b><small>Как на обмерном плане: длина и направление каждой стены</small></summary>
-              <div class="planner-wall-table" id="plannerWallTable"></div>
-              <div class="wt-actions"><button type="button" class="btn" id="plannerWallAddBtn">+ Стена</button><button type="button" class="btn primary" id="plannerWallBuildBtn">⌂ Построить</button></div>
-              <small class="wt-hint">Начало — левый верхний угол. Последнюю стену до начала можно не вводить: она добавится сама.</small>
-            </details>
-            <details class="planner-underlay-box" id="plannerUnderlayBox"><summary><b>Подложка: план или фото</b><small>Расставляйте стеллажи поверх обмерного плана</small></summary>
-              <label class="btn ul-file"><input type="file" id="plannerUnderlayFile" accept="image/*" hidden>🖼 Загрузить изображение</label>
-              <div class="ul-fields"><label>Ширина картинки, мм<input class="input" id="plannerUnderlayWidth" type="number" min="100" step="10"></label><label>Сдвиг X, мм<input class="input" id="plannerUnderlayX" type="number" step="10"></label><label>Сдвиг Y, мм<input class="input" id="plannerUnderlayY" type="number" step="10"></label><label>Прозрачность, %<input id="plannerUnderlayOpacity" type="range" min="5" max="100" step="5"></label></div>
-              <div class="wt-actions ul-actions"><button type="button" class="btn" id="plannerUnderlayToggle">👁 Скрыть / показать</button><button type="button" class="btn danger" id="plannerUnderlayRemove">Удалить</button></div>
-              <small class="wt-hint">Ширина — реальный размер всего изображения в мм (например, длина стены на плане от края до края картинки).</small>
-            </details>
-            <div class="planner-wall-list hidden" id="plannerWallList"></div>
-            <div class="planner-room-actions"><button class="btn primary planner-create-room-btn" id="plannerApplyRoomBtn" type="button"><span>⌂</span> Создать помещение</button><div class="planner-draw-actions" id="plannerDrawActions"><button class="btn" id="plannerUndoPointBtn" type="button">↶ Убрать стену</button><button class="btn" id="plannerRedoPointBtn" type="button">↷ Вернуть стену</button><button class="btn success" id="plannerFinishRoomBtn" type="button">Замкнуть контур</button></div><button class="btn danger planner-clear-room-action" id="plannerClearRoomActionBtn" type="button">Очистить помещение</button></div>
           </div>
         </div>
 
@@ -3934,6 +3967,9 @@ function renderCatalog(){
   document.addEventListener('keyup',e=>{if(e.key==='Shift')draftShift=false});
   document.addEventListener('click',e=>{if(e.target.closest('[data-draft-ortho]')){pstate().ortho=!pstate().ortho;draftHud();persist()}});
   document.addEventListener('pointermove',e=>{if(pstate().drawing&&e.target.closest?.('#plannerSvg'))requestAnimationFrame(draftHud)});
+
+  // Choosing "Нарисовать стенами" starts drawing at once — no hidden button to find.
+  document.addEventListener('click',e=>{const r=e.target.closest('.planner-mode-switch [data-room-mode="rect"]');if(r&&pstate().drawing){setTimeout(()=>{pstate().drawing=false;pstate().draftPoints=[];renderPlanner();persist()},0);return}const b=e.target.closest('.planner-mode-switch [data-room-mode="draw"]');if(!b)return;setTimeout(()=>{if(roomMode==='draw'&&!pstate().drawing&&!pstate().room.created){$('#plannerApplyRoomBtn')?.click()}},0)});
   const renderPlannerFloatBase=renderPlanner;renderPlanner=function(){if(pstate().magnet===false)pstate().magnet=true;renderPlannerFloatBase();{const svg=$('#plannerSvg');if(svg){const rs=rulerSvg();if(rs)svg.insertAdjacentHTML('beforeend',rs)}}syncUnderlayForm();renderCapacityStatus();const fill=$('#plannerFillRowsBtn'),so=selected();if(fill)fill.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());const blockBtn=$('#plannerSelectBlockBtn');if(blockBtn)blockBtn.classList.toggle('hidden',!so||!['archive','group'].includes(so.kind)||groupActive());positionPlannerFloatBar();decoratePlannerSelection();renderQuickProps();renderAlignBar();draftHud();{const sb=$('#plannerSheetPropsBtn');if(sb)sb.classList.toggle('has-sel',!!so)}};
   {const renderPlannerAisleOuter=renderPlanner;renderPlanner=function(){return withAisleShift(()=>renderPlannerAisleOuter())}}
   function decoratePlannerSelection(){const svg=$('#plannerSvg');if(!svg)return;const ids=new Set(groupActive()?plannerGroupSel:[]);svg.querySelectorAll('[data-planner-object]').forEach(el=>el.classList.toggle('group-selected',ids.has(el.dataset.plannerObject)));const list=subjectList();if(!list.length||!pstate().room.created||/planner-stage-room/.test(document.body.className))return;const o=selected();if(isWallOpening(o))return;const r=subjectRect(list);let extra='';if(groupActive()){const M=cadMetrics();extra+=`<rect class="group-frame" x="${r.x-M.u*6}" y="${r.y-M.u*6}" width="${r.w+M.u*12}" height="${r.h+M.u*12}" rx="${M.u*6}"/><text class="group-frame-label" x="${r.x}" y="${r.y-M.u*11}" font-size="${M.font}">Блок: ${list.length} ${plural(list.length,'ряд','ряда','рядов')} · ${Math.round(r.w)} × ${Math.round(r.h)} мм</text>`}if(!drag||drag.type!=='pan')extra+=buildSubjectWallDims(r);svg.insertAdjacentHTML('beforeend',extra)}
