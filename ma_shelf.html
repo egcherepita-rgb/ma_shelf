@@ -3217,6 +3217,10 @@ init();
   const rectCorners=r=>[[r.x,r.y],[r.x+r.w,r.y],[r.x+r.w,r.y+r.h],[r.x,r.y+r.h]];
   function rectInsideRoom(r,poly){const cs=rectCorners(r);if(!cs.every(p=>pointInPolygon(p,poly)))return false;for(let i=0;i<4;i++){const a=cs[i],b=cs[(i+1)%4];for(let j=0;j<poly.length;j++){const c=poly[j],d=poly[(j+1)%poly.length];if(segInter(a,b,c,d)&&![a,b].some(p=>pointOnSegment(p,c,d))&&!([c,d].some(p=>pointOnSegment(p,a,b))))return false;}}return true;}
   const overlap=(a,b)=>a.x<b.x+b.w-1&&a.x+a.w>b.x+1&&a.y<b.y+b.h-1&&a.y+a.h>b.y+1;
+  // Handwheel side of a mobile row: a working zone in front of the drive panel must stay free.
+  const WHEEL_ZONE_MM=1200, WHEEL_ZONE_MIN_MM=600;
+  function wheelFrontStrip(o,len){const r=(Number(o.rotation)||0)*Math.PI/180,ux=[Math.cos(r),Math.sin(r)],fp=footprint(o);if(Math.abs(ux[0])>.5)return ux[0]>0?{x:fp.x-len,y:fp.y,w:len,h:fp.h}:{x:fp.x+fp.w,y:fp.y,w:len,h:fp.h};return ux[1]>0?{x:fp.x,y:fp.y-len,w:fp.w,h:len}:{x:fp.x,y:fp.y+fp.h,w:fp.w,h:len}}
+  function wheelZoneFree(o,len,extra=[]){if(o.kind!=='archive'||o.rackType!=='mobile')return true;const z=wheelFrontStrip(o,len);if(!rectInsideRoom(z,roomPoints()))return false;return![...pstate().objects,...extra].some(x=>x.id!==o.id&&isSolidObstacle(x)&&overlap(z,footprint(x)))}
   function plannerIssues(){
     ensurePlannerState();ensureWallOpeningAttachments();const issues=[],poly=roomPoints(),invalid=new Set();
     if(!pstate().room.created){issues.push({level:'info',text:'План помещения не создан — расчёт доступен без него'});issues.invalidIds=invalid;return issues}
@@ -3224,6 +3228,7 @@ init();
     pstate().objects.forEach(o=>{if(isWallOpening(o)){if(!wallOpeningAttachmentValid(o)){issues.push({level:'error',text:`«${o.label}» не удалось установить в стену`,ids:[o.id]});invalid.add(o.id)}return}const r=footprint(o);if(!rectInsideRoom(r,poly)){issues.push({level:'error',text:`«${o.label}» выходит за границы помещения`,ids:[o.id]});invalid.add(o.id)}});
     for(let i=0;i<pstate().objects.length;i++)for(let j=i+1;j<pstate().objects.length;j++){const a=pstate().objects[i],b=pstate().objects[j];if(overlap(footprint(a),footprint(b))){const door=a.kind==='door'?a:b.kind==='door'?b:null,other=door?(door===a?b:a):null,text=door?`Зона открывания «${door.label}» пересекает «${other.label}»`:`Пересечение: «${a.label}» и «${b.label}»`;issues.push({level:'error',text,ids:[a.id,b.id]});invalid.add(a.id);invalid.add(b.id)}}
     plannerRailPlans().filter(plan=>plan.aisleValid===false).forEach((plan,index)=>{const ids=(plan.sourceIds||[]).filter(Boolean),label=plan.sourceLabel||`Архивный блок ${index+1}`,available=Math.max(0,Math.round(plan.aisleActual||0));issues.push({level:'error',text:`Недостаточный проход в «${label}»: ${available} мм. Требуется не менее ${FOUNDATION_MIN_AISLE_MM} мм.`,ids});ids.forEach(id=>invalid.add(id))});
+    {const bad=pstate().objects.filter(o=>o.kind==='archive'&&o.rackType==='mobile'&&!wheelZoneFree(o,WHEEL_ZONE_MIN_MM));if(bad.length){issues.push({level:'error',text:`Штурвал упирается в стену или препятствие (${bad.length} ${plural(bad.length,'ряд','ряда','рядов')}): перед штурвалом нужно не менее ${WHEEL_ZONE_MIN_MM} мм, рекомендуется ${WHEEL_ZONE_MM} мм`,ids:bad.map(o=>o.id)});bad.forEach(o=>invalid.add(o.id))}}
     if(!pstate().objects.length)issues.push({level:'info',text:'После создания помещения добавьте стеллажи из каталога'});
     issues.invalidIds=invalid;return issues;
   }
@@ -3258,7 +3263,7 @@ init();
     const src=selected();if(!src||!['archive','group'].includes(src.kind)||!pstate().room.created){toast('Выберите стеллаж на плане','bad');return}
     const aisle=src.rackType==='mobile'?plannerRailAisleMm():0;
     const plan=sign=>{const start=blockEnd(src,sign),otherEnd=blockEnd(src,-sign),otherFree=aisle>0&&stripBeyond(otherEnd,-sign,aisle),list=[];let last=start;
-      for(let k=0;k<60;k++){const pos=adjacentRackSpot(last,src,sign),probe={...src,id:'__probe'+k,cx:pos.cx,cy:pos.cy};if(!spotIsFree(probe,list.map(x=>x.id))||list.some(x=>overlap(footprint(probe),footprint(x))))break;if(aisle>0&&!otherFree&&!stripBeyond(probe,sign,aisle,list))break;list.push(probe);last=probe}
+      for(let k=0;k<60;k++){const pos=adjacentRackSpot(last,src,sign),probe={...src,id:'__probe'+k,cx:pos.cx,cy:pos.cy};if(!spotIsFree(probe,list.map(x=>x.id))||list.some(x=>overlap(footprint(probe),footprint(x))))break;if(aisle>0&&!otherFree&&!stripBeyond(probe,sign,aisle,list))break;if(!wheelZoneFree(probe,WHEEL_ZONE_MIN_MM,list))break;list.push(probe);last=probe}
       return list};
     const plus=plan(1),minus=plan(-1),best=plus.length>=minus.length?plus:minus;
     if(!best.length){toast(aisle?`Места для ещё одного ряда нет: нужен рабочий проход ${aisle} мм`:'Места для ещё одного ряда нет','warn');return}
@@ -3833,8 +3838,8 @@ function renderCatalog(){
     if(pstate().objects.length===before||!o||o.kind!=='archive'){return}
     const poly=roomPoints(),xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),r=footprint(o),wall=Math.max(0,Number($('#plannerWizardWallGap')?.value)||0);
     // corner candidates scanned from the top-left; the first free one wins
-    let placed=false;
-    for(let y=Math.min(...ys)+wall+r.h/2;y<=Math.max(...ys)-r.h/2&&!placed;y+=100)for(let x=Math.min(...xs)+wall+r.w/2;x<=Math.max(...xs)-r.w/2;x+=50){if(validSolidSpot(o,x,y)){o.cx=x;o.cy=y;placed=true;break}}
+    let placed=false;const needWheel=o.rackType==='mobile';
+    for(const rot of needWheel?[0,180]:[Number(o.rotation)||0]){if(placed)break;o.rotation=rot;for(let y=Math.min(...ys)+wall+r.h/2;y<=Math.max(...ys)-r.h/2&&!placed;y+=100)for(let x=Math.min(...xs)+wall+r.w/2;x<=Math.max(...xs)-r.w/2;x+=50){if(validSolidSpot(o,x,y)){const px=o.cx,py=o.cy;o.cx=x;o.cy=y;if(!needWheel||wheelZoneFree(o,WHEEL_ZONE_MM)){placed=true;break}o.cx=px;o.cy=py}}}
     if(!placed){toast('В помещении нет места для этого ряда','warn');return}
     pstate().selectedId=o.id;plannerGroupSel=[];renderPlanner();
     fillRowsFromSelected();
